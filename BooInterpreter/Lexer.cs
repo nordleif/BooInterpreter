@@ -9,9 +9,10 @@ namespace BooInterpreter
     public class Lexer
     {
         private string m_input;
-        private int m_position;     // current position in input (points to current char)
-        private int m_readPosition; // current readiong position in input (after current char)
-        private char m_ch;          // current char under examination
+        private readonly Dictionary<string, TokenType> m_keywords;
+        private int m_position;
+        private int m_readPosition;
+        private char m_ch;
 
         public Lexer(string input)
         {
@@ -19,6 +20,17 @@ namespace BooInterpreter
                 throw new ArgumentNullException(nameof(input));
 
             m_input = input;
+            m_keywords = new Dictionary<string, TokenType>
+            {
+                { "fn", TokenType.FUNCTION },
+                { "let", TokenType.LET },
+                { "true", TokenType.TRUE },
+                { "false", TokenType.FALSE },
+                { "if", TokenType.IF },
+                { "else", TokenType.ELSE },
+                { "return", TokenType.RETURN },
+            };
+
             ReadChar();
         }
 
@@ -94,7 +106,9 @@ namespace BooInterpreter
                     if (IsLetter(m_ch))
                     {
                         var identifier = ReadIdentifier();
-                        return new Token(Token.Lookup(identifier), identifier);
+                        if (!m_keywords.TryGetValue(identifier, out TokenType type))
+                            type = TokenType.IDENT;
+                        return new Token(type, identifier);
                     }
                     else if (IsDigit(m_ch))
                         return new Token(TokenType.INT, ReadNumber());

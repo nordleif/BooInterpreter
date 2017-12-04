@@ -8,25 +8,6 @@ namespace BooInterpreter
 {
     public class Token
     {
-        private static readonly Dictionary<string, TokenType> m_keywords = new Dictionary<string, TokenType>
-        {
-            { "fn", TokenType.FUNCTION },
-            { "let", TokenType.LET },
-            { "true", TokenType.TRUE },
-            { "false", TokenType.FALSE },
-            { "if", TokenType.IF },
-            { "else", TokenType.ELSE },
-            { "return", TokenType.RETURN },
-        };
-
-        public static TokenType Lookup(string literal)
-        {
-            if (m_keywords.TryGetValue(literal, out TokenType type))
-                return type;
-            else
-                return TokenType.IDENT;
-        }
-
         public Token(TokenType type, char literal)
         {
             Type = type;
