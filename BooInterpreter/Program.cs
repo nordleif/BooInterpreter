@@ -6,27 +6,15 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter
 {
-    class Program
+    public class Program : Node
     {
-        static void Main(string[] args)
+        public Program()
         {
-            var prompt = ">> ";
-            while (true)
-            {
-                Console.Write(prompt);
-                var text = Console.ReadLine();
-                if (string.IsNullOrWhiteSpace(text))
-                    return;
 
-                var lexer = new Lexer(text);
-                while(true)
-                {
-                    var token = lexer.NextToken();
-                    if (token.Type == TokenType.EOF)
-                        break;
-                    Console.WriteLine($"{token.Type.ToString().PadRight(10)} {token.Literal}");
-                }
-            }
         }
+
+        public Statement[] Statements { get; set; }
+
+        public override string TokenLiteral => Statements?.FirstOrDefault()?.TokenLiteral ?? string.Empty;
     }
 }

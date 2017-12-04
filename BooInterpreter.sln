@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooInterpreter", "BooInterp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooInterpreter.Tests", "BooInterpreter.Tests\BooInterpreter.Tests.csproj", "{FB93382F-7F8F-4165-A122-7417AD19CFBD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BooInterpreter.App", "BooInterpreter.App\BooInterpreter.App.csproj", "{7B19A60B-D26F-4A15-86B2-D04CD658187C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FB93382F-7F8F-4165-A122-7417AD19CFBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB93382F-7F8F-4165-A122-7417AD19CFBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB93382F-7F8F-4165-A122-7417AD19CFBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B19A60B-D26F-4A15-86B2-D04CD658187C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B19A60B-D26F-4A15-86B2-D04CD658187C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B19A60B-D26F-4A15-86B2-D04CD658187C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B19A60B-D26F-4A15-86B2-D04CD658187C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
