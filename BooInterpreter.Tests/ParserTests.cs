@@ -17,10 +17,10 @@ namespace BooInterpreter
                           let y = 10;
                           let foobar = 838383;";
 
-
             var lexer = new Lexer(input);
             var parser = new Parser(lexer);
             var program = parser.ParseProgram();
+
 
             Assert.NotNull(program);
             Assert.AreEqual(3, program.Statements.Length);
@@ -46,7 +46,7 @@ namespace BooInterpreter
 
         private void CheckParserErrors(Parser parser)
         {
-            
+            Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("; ", parser.Errors)}");
         }
 
         private void TestLetStatement(Statement statement, string expectedName)

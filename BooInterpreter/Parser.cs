@@ -9,6 +9,7 @@ namespace BooInterpreter
     public class Parser
     {
         private Token m_currentToken;
+        private List<string> m_errors;
         private Token m_peekToken;
         private Lexer m_lexer;
 
@@ -18,10 +19,13 @@ namespace BooInterpreter
                 throw new ArgumentNullException(nameof(lexer));
 
             m_lexer = lexer;
+            m_errors = new List<string>();
 
             NextToken();
             NextToken();
         }
+
+        public string[] Errors => m_errors.ToArray();
 
         public void NextToken()
         {
@@ -86,7 +90,15 @@ namespace BooInterpreter
                 return true;
             }
             else
+            {
+                PeekError(type);
                 return false;
+            }
+        }
+
+        private void PeekError(TokenType tokenType)
+        {
+            m_errors.Add($"Expected next token to be {tokenType}, got {m_peekToken.Type} instead.");
         }
 
         private bool PeekTokenIs(TokenType type)
