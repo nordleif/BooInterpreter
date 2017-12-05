@@ -19,7 +19,7 @@ namespace BooInterpreter
 
         public override string ToString()
         {
-            return $"{TokenLiteral} = {Value};";
+            return $"{TokenLiteral} {Name} = {Value};";
         }
     }
 }
