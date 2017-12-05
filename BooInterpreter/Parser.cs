@@ -53,6 +53,8 @@ namespace BooInterpreter
             {
                 case TokenType.LET:
                     return ParseLetStatement();
+                case TokenType.RETURN:
+                    return ParseReturnStatement();
                 default:
                     return null;
             }
@@ -76,7 +78,17 @@ namespace BooInterpreter
             return statement;        
         }
         
-        
+        private ReturnStatement ParseReturnStatement()
+        {
+            var statement = new ReturnStatement { Token = m_currentToken };
+
+            NextToken();
+            while (CurrentTokenIs(TokenType.SEMICOLON))
+                NextToken();
+
+            return statement;
+        }
+
         private bool CurrentTokenIs(TokenType type)
         {
             return m_currentToken.Type == type;

@@ -13,40 +13,54 @@ namespace BooInterpreter
         [Test]
         public void Parser_LetStatements()
         {
-            var input = @"let x = 5;
-                          let y = 10;
-                          let foobar = 838383;";
-
-            var lexer = new Lexer(input);
-            var parser = new Parser(lexer);
-            var program = parser.ParseProgram();
-
-
-            Assert.NotNull(program);
-            Assert.AreEqual(3, program.Statements.Length);
-
             var tests = new[] {
                 new { Input = "let x = 5;", ExpectedIdentifier = "x", ExpectedValue = (object)5 },
                 new { Input = "let y = true;", ExpectedIdentifier = "y", ExpectedValue = (object)true },
-                new { Input = "let foobar = y", ExpectedIdentifier = "foobar", ExpectedValue = (object)"y" }};
+                new { Input = "let foobar = y", ExpectedIdentifier = "foobar", ExpectedValue = (object)"y" },
+            };
 
             foreach(var test in tests)
             {
-                lexer = new Lexer(test.Input);
-                parser = new Parser(lexer);
-                program = parser.ParseProgram();
+                var lexer = new Lexer(test.Input);
+                var parser = new Parser(lexer);
+                var program = parser.ParseProgram();
                 CheckParserErrors(parser);
                 Assert.AreEqual(1, program.Statements.Length);
 
-                var statement = program.Statements.First();
+                var statement = program.Statements.First() as LetStatement;
+                Assert.NotNull(statement);
                 TestLetStatement(statement, test.ExpectedIdentifier);
                 TestLiteralExpression(((LetStatement)statement).Value, test.ExpectedValue);
             }
         }
 
+        [Test]
+        public void Parser_ReturnStatements()
+        {
+            var tests = new[] {
+                new { Input = "return 5;", ExpectedReturnValue = (object)5},
+                new { Input = "return 5;", ExpectedReturnValue = (object)10},
+                new { Input = "return 5;", ExpectedReturnValue = (object)993322},
+            };
+
+            foreach (var test in tests)
+            {
+                var lexer = new Lexer(test.Input);
+                var parser = new Parser(lexer);
+                var program = parser.ParseProgram();
+                CheckParserErrors(parser);
+                Assert.AreEqual(1, program.Statements.Length);
+
+                var statement = program.Statements.First() as ReturnStatement;
+                Assert.NotNull(statement);
+                Assert.AreEqual("return", statement.TokenLiteral);
+                TestLiteralExpression(statement.ReturnValue, test.ExpectedReturnValue);
+            }
+        }
+
         private void CheckParserErrors(Parser parser)
         {
-            Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("; ", parser.Errors)}");
+            Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");
         }
 
         private void TestLetStatement(Statement statement, string expectedName)
