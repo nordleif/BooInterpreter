@@ -47,12 +47,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Expression.cs" />
-    <Compile Include="Identifier.cs" />
+    <Compile Include="Statements\ExpressionStatement.cs" />
+    <Compile Include="Expressions\Identifier.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Parser.cs" />
-    <Compile Include="ReturnStatement.cs" />
+    <Compile Include="Statements\ReturnStatement.cs" />
     <Compile Include="Statement.cs" />
-    <Compile Include="LetStatement.cs" />
+    <Compile Include="Statements\LetStatement.cs" />
     <Compile Include="Lexer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

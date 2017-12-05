@@ -13,10 +13,11 @@ namespace BooInterpreter
 
         }
 
-        public Token Token { get; set; }
-
         public string Value { get; set; }
 
-        public override string TokenLiteral => Token?.Literal ?? string.Empty;
+        public override string ToString()
+        {
+            return $"{Value}";
+        }
     }
 }

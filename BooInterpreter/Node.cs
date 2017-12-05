@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter
 {
-    public class Node
+    public abstract class Node
     {
         public virtual string TokenLiteral => string.Empty;
     }

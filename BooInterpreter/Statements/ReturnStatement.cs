@@ -13,10 +13,11 @@ namespace BooInterpreter
 
         }
 
-        public Token Token { get; set; }
-
         public Expression ReturnValue { get; set; }
 
-        public override string TokenLiteral => Token?.Literal;
+        public override string ToString()
+        {
+            return $"{TokenLiteral} {ReturnValue};";
+        }
     }
 }

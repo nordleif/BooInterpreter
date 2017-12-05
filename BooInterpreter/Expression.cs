@@ -6,11 +6,15 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter
 {
-    public class Expression : Node
+    public abstract class Expression : Node
     {
         public Expression()
         {
 
         }
+
+        public Token Token { get; set; }
+
+        public override string TokenLiteral => Token.Literal;
     }
 }
