@@ -58,6 +58,48 @@ namespace BooInterpreter
             }
         }
 
+        [Test]
+        public void Parser_IdentifierExpression()
+        {
+            var input = "foobar;";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements.First() as ExpressionStatement;
+            Assert.IsNotNull(statement);
+            Assert.IsNotNull(statement.Expression);
+
+            var identifier = statement.Expression as Identifier;
+            Assert.IsNotNull(identifier);
+            Assert.AreEqual("foobar", identifier.Value);
+            Assert.AreEqual("foobar", identifier.TokenLiteral);
+        }
+
+        [Test]
+        public void Parser_IntegerLiteralExpression()
+        {
+            var input = "5;";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements.First() as ExpressionStatement;
+            Assert.IsNotNull(statement);
+            Assert.IsNotNull(statement.Expression);
+
+            var literal = statement.Expression as IntegerLiteral;
+            Assert.IsNotNull(literal);
+            Assert.AreEqual(5, literal.Value);
+            Assert.AreEqual("5", literal.TokenLiteral);
+        }
+
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");
@@ -74,7 +116,5 @@ namespace BooInterpreter
         {
             
         }
-
-
     }
 }
