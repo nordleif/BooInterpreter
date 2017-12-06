@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Expression.cs" />
     <Compile Include="Expressions\IntegerLiteral.cs" />
+    <Compile Include="Expressions\PrefixExpression.cs" />
     <Compile Include="Precedence.cs" />
     <Compile Include="Statements\ExpressionStatement.cs" />
     <Compile Include="Expressions\Identifier.cs" />
@@ -61,9 +62,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Token.cs" />
     <Compile Include="TokenType.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

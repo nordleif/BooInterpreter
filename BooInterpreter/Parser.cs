@@ -23,6 +23,8 @@ namespace BooInterpreter
 
             m_prefixParse.Add(TokenType.IDENT, ParseIdentifier);
             m_prefixParse.Add(TokenType.INT, ParseIntegerLiteral);
+            m_prefixParse.Add(TokenType.BANG, ParsePrefixExpression);
+            m_prefixParse.Add(TokenType.MINUS, ParsePrefixExpression);
 
             NextToken();
             NextToken();
@@ -92,7 +94,6 @@ namespace BooInterpreter
         private ReturnStatement ParseReturnStatement()
         {
             var statement = new ReturnStatement { Token = CurrentToken };
-
             NextToken();
 
             statement.ReturnValue = ParseExpression(Precedence.Lowest);
@@ -106,7 +107,6 @@ namespace BooInterpreter
         private ExpressionStatement ParseExpressionStatement()
         {
             var statement = new ExpressionStatement { Token = CurrentToken };
-
             statement.Expression = ParseExpression(Precedence.Lowest);
 
             if (PeekTokenIs(TokenType.SEMICOLON))
@@ -117,12 +117,19 @@ namespace BooInterpreter
 
         private Expression ParseExpression(Precedence precedence)
         {
-            if (m_prefixParse.TryGetValue(CurrentToken.Type, out var prefix))
-                return prefix();
-            else
+            Func<Expression> prefix = null;
+            if (!m_prefixParse.TryGetValue(CurrentToken.Type, out prefix))
+            {
+                NoPrefixError(CurrentToken.Type);
                 return null;
-        }
+            }
 
+            var leftExpression = prefix();
+
+            return leftExpression;
+
+        }
+        
         private Identifier ParseIdentifier()
         {
             return new Identifier { Token = CurrentToken, Value = CurrentToken.Literal };
@@ -143,6 +150,18 @@ namespace BooInterpreter
             return null;
         }
 
+        private PrefixExpression ParsePrefixExpression()
+        {
+            var expression = new PrefixExpression { Token = CurrentToken };
+            expression.Operator = CurrentToken.Literal;
+
+            NextToken();
+
+            expression.Right = ParseExpression(Precedence.Prefix);
+
+            return expression;
+        }
+
         private bool CurrentTokenIs(TokenType type)
         {
             return CurrentToken.Type == type;
@@ -160,6 +179,11 @@ namespace BooInterpreter
                 PeekError(type);
                 return false;
             }
+        }
+
+        private void NoPrefixError(TokenType type)
+        {
+            m_errors.Add($"No prefix parse function for {type} found.");
         }
 
         private void PeekError(TokenType tokenType)
