@@ -14,5 +14,10 @@ namespace BooInterpreter
         }
 
         public Int64 Value { get; set; }
+
+        public override string ToString()
+        {
+            return $"{Value}";
+        }
     }
 }

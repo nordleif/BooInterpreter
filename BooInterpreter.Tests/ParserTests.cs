@@ -101,7 +101,7 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void Parser_PrefixExpression()
+        public void Parser_PrefixExpressions()
         {
             var tests = new[] {
                 new { Input = "!5;", Operator = "!", Value = (object)5L },
@@ -129,6 +129,43 @@ namespace BooInterpreter
             }
         }
 
+        [Test]
+        public void Parser_InfixExpressions()
+        {
+            var tests = new[] {
+                new { Input = "5 + 5;", LeftValue = (object)5L, Operator = "+", RightValue = (object)5L },
+                new { Input = "5 - 5;", LeftValue = (object)5L, Operator = "-", RightValue = (object)5L },
+                new { Input = "5 * 5;", LeftValue = (object)5L, Operator = "*", RightValue = (object)5L },
+                new { Input = "5 / 5;", LeftValue = (object)5L, Operator = "/", RightValue = (object)5L },
+                new { Input = "5 > 5;", LeftValue = (object)5L, Operator = ">", RightValue = (object)5L },
+                new { Input = "5 < 5;", LeftValue = (object)5L, Operator = "<", RightValue = (object)5L },
+                new { Input = "5 == 5;", LeftValue = (object)5L, Operator = "==", RightValue = (object)5L },
+                new { Input = "5 != 5;", LeftValue = (object)5L, Operator = "!=", RightValue = (object)5L },
+                //new { Input = "true == true", LeftValue = (object)true, Operator = "==", RightValue = (object)true },
+                //new { Input = "true != false", LeftValue = (object)true, Operator = "!=", RightValue = (object)false },
+                //new { Input = "false == false", LeftValue = (object)false, Operator = "==", RightValue = (object)false }
+            };
+
+            foreach (var test in tests)
+            {
+                var lexer = new Lexer(test.Input);
+                var parser = new Parser(lexer);
+                var program = parser.ParseProgram();
+                CheckParserErrors(parser);
+                Assert.AreEqual(1, program.Statements.Length);
+
+                var statement = program.Statements[0] as ExpressionStatement;
+                Assert.IsNotNull(statement);
+
+                var expression = statement.Expression as InfixExpression;
+                Assert.IsNotNull(expression);
+
+                TestLiteralExpression(expression.Left, test.LeftValue);
+                Assert.AreEqual(test.Operator, expression.Operator);
+                TestLiteralExpression(expression.Right, test.RightValue);
+            }
+        }
+
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");
@@ -143,7 +180,8 @@ namespace BooInterpreter
 
         private void TestLiteralExpression(Expression expression, object value)
         {
-            
+            if (value is Int64)
+                TestIntegerLiteral(expression, (Int64)value);
         }
 
         private void TestIntegerLiteral(Expression expression, Int64 value)
@@ -153,6 +191,8 @@ namespace BooInterpreter
             Assert.AreEqual(integer.Value, value);
             Assert.AreEqual($"{value}", integer.TokenLiteral);
         }
+
+    
 
     }
 }

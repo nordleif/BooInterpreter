@@ -11,6 +11,7 @@ namespace BooInterpreter
         private List<string> m_errors;
         private readonly Dictionary<TokenType, Func<Expression, Expression>> m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
         private Lexer m_lexer;
+        private Dictionary<TokenType, Precedence> m_precedences = new Dictionary<TokenType, Precedence>();
         private readonly Dictionary<TokenType, Func<Expression>> m_prefixParse = new Dictionary<TokenType, Func<Expression>>();
 
         public Parser(Lexer lexer)
@@ -25,6 +26,25 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.INT, ParseIntegerLiteral);
             m_prefixParse.Add(TokenType.BANG, ParsePrefixExpression);
             m_prefixParse.Add(TokenType.MINUS, ParsePrefixExpression);
+
+            m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
+            m_infixParse.Add(TokenType.MINUS, ParseInfixExpression);
+            m_infixParse.Add(TokenType.SLASH, ParseInfixExpression);
+            m_infixParse.Add(TokenType.ASTERISK, ParseInfixExpression);
+            m_infixParse.Add(TokenType.EQ, ParseInfixExpression);
+            m_infixParse.Add(TokenType.NOT_EQ, ParseInfixExpression);
+            m_infixParse.Add(TokenType.LT, ParseInfixExpression);
+            m_infixParse.Add(TokenType.GT, ParseInfixExpression);
+
+            m_precedences.Add(TokenType.EQ, Precedence.Equals);
+            m_precedences.Add(TokenType.NOT_EQ, Precedence.Equals);
+            m_precedences.Add(TokenType.LT, Precedence.LessGreater);
+            m_precedences.Add(TokenType.GT, Precedence.LessGreater);
+            m_precedences.Add(TokenType.PLUS, Precedence.Sum);
+            m_precedences.Add(TokenType.MINUS, Precedence.Sum);
+            m_precedences.Add(TokenType.SLASH, Precedence.Product);
+            m_precedences.Add(TokenType.ASTERISK, Precedence.Product);
+
 
             NextToken();
             NextToken();
@@ -126,8 +146,18 @@ namespace BooInterpreter
 
             var leftExpression = prefix();
 
-            return leftExpression;
+            while(!PeekTokenIs(TokenType.SEMICOLON) && precedence < PeekPrecedence())
+            {
+                Func<Expression, Expression> infix = null;
+                if (!m_infixParse.TryGetValue(PeekToken.Type, out infix))
+                    return leftExpression;
 
+                NextToken();
+
+                leftExpression = infix(leftExpression);
+            }
+
+            return leftExpression;
         }
         
         private Identifier ParseIdentifier()
@@ -162,6 +192,27 @@ namespace BooInterpreter
             return expression;
         }
 
+        private InfixExpression ParseInfixExpression(Expression left)
+        {
+            var expression = new InfixExpression { Token = CurrentToken };
+            expression.Left = left;
+            expression.Operator = CurrentToken.Literal;
+
+            NextToken();
+
+            expression.Right = ParseExpression(CurrentPrecedence());
+
+            return expression;
+        }
+
+        private Precedence CurrentPrecedence()
+        {
+            if (m_precedences.TryGetValue(CurrentToken.Type, out var precedence))
+                return precedence;
+            else
+                return Precedence.Lowest;
+        }
+
         private bool CurrentTokenIs(TokenType type)
         {
             return CurrentToken.Type == type;
@@ -189,6 +240,14 @@ namespace BooInterpreter
         private void PeekError(TokenType tokenType)
         {
             m_errors.Add($"Expected next token to be {tokenType}, got {PeekToken.Type} instead.");
+        }
+
+        private Precedence PeekPrecedence()
+        {
+            if (m_precedences.TryGetValue(PeekToken.Type, out var precedence))
+                return precedence;
+            else
+                return Precedence.Lowest;
         }
 
         private bool PeekTokenIs(TokenType type)

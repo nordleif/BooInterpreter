@@ -8,7 +8,7 @@ namespace BooInterpreter
 {
     public enum Precedence
     {
-        Lowest,
+        Lowest = 0,
         Equals,      // ==
         LessGreater, // > or <
         Sum,         // +
