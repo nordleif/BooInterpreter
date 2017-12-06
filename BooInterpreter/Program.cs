@@ -21,7 +21,7 @@ namespace BooInterpreter
 
         public override string ToString()
         {
-            return string.Join("\r\n", Statements?.Select(s => s.ToString()));
+            return string.Join("", Statements?.Select(s => s.ToString()));
         }
     }
 }

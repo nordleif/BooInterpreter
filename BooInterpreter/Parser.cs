@@ -9,10 +9,10 @@ namespace BooInterpreter
     public class Parser
     {
         private List<string> m_errors;
-        private readonly Dictionary<TokenType, Func<Expression, Expression>> m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
+        private readonly Dictionary<TokenType, Func<Expression, Expression>> m_infixParse;
         private Lexer m_lexer;
-        private Dictionary<TokenType, Precedence> m_precedences = new Dictionary<TokenType, Precedence>();
-        private readonly Dictionary<TokenType, Func<Expression>> m_prefixParse = new Dictionary<TokenType, Func<Expression>>();
+        private Dictionary<TokenType, Precedence> m_precedences;
+        private readonly Dictionary<TokenType, Func<Expression>> m_prefixParse;
 
         public Parser(Lexer lexer)
         {
@@ -22,11 +22,13 @@ namespace BooInterpreter
             m_lexer = lexer;
             m_errors = new List<string>();
 
+            m_prefixParse = new Dictionary<TokenType, Func<Expression>>();
             m_prefixParse.Add(TokenType.IDENT, ParseIdentifier);
             m_prefixParse.Add(TokenType.INT, ParseIntegerLiteral);
             m_prefixParse.Add(TokenType.BANG, ParsePrefixExpression);
             m_prefixParse.Add(TokenType.MINUS, ParsePrefixExpression);
 
+            m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
             m_infixParse.Add(TokenType.MINUS, ParseInfixExpression);
             m_infixParse.Add(TokenType.SLASH, ParseInfixExpression);
@@ -36,6 +38,7 @@ namespace BooInterpreter
             m_infixParse.Add(TokenType.LT, ParseInfixExpression);
             m_infixParse.Add(TokenType.GT, ParseInfixExpression);
 
+            m_precedences = new Dictionary<TokenType, Precedence>();
             m_precedences.Add(TokenType.EQ, Precedence.Equals);
             m_precedences.Add(TokenType.NOT_EQ, Precedence.Equals);
             m_precedences.Add(TokenType.LT, Precedence.LessGreater);
@@ -44,7 +47,6 @@ namespace BooInterpreter
             m_precedences.Add(TokenType.MINUS, Precedence.Sum);
             m_precedences.Add(TokenType.SLASH, Precedence.Product);
             m_precedences.Add(TokenType.ASTERISK, Precedence.Product);
-
 
             NextToken();
             NextToken();
@@ -198,9 +200,11 @@ namespace BooInterpreter
             expression.Left = left;
             expression.Operator = CurrentToken.Literal;
 
+            var precedence = CurrentPrecedence();
+
             NextToken();
 
-            expression.Right = ParseExpression(CurrentPrecedence());
+            expression.Right = ParseExpression(precedence);
 
             return expression;
         }

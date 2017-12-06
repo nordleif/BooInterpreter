@@ -17,7 +17,7 @@ namespace BooInterpreter
 
         public override string ToString()
         {
-            return $"{Expression};";
+            return $"{Expression}";
         }
     }
 }
