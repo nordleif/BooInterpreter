@@ -11,10 +11,26 @@ namespace BooInterpreter
     public class ParserTests
     {
         [Test]
+        public void Parser_ToString()
+        {
+            var program = new Program {
+                Statements = new Statement[] {
+                    new LetStatement {
+                        Token = new Token(TokenType.LET, "let"),
+                        Name = new Identifier { Token = new Token(TokenType.IDENT, "myVar"), Value = "myVar" },
+                        Value = new Identifier { Token = new Token(TokenType.IDENT, "anotherVar"), Value = "anotherVar" }
+                    }
+                }
+            };
+
+            Assert.AreEqual("let myVar = anotherVar;", program.ToString());
+        }
+
+        [Test]
         public void Parser_LetStatements()
         {
             var tests = new[] {
-                new { Input = "let x = 5;", ExpectedIdentifier = "x", ExpectedValue = (object)5 },
+                new { Input = "let x = 5;", ExpectedIdentifier = "x", ExpectedValue = (object)5L },
                 //new { Input = "let y = true;", ExpectedIdentifier = "y", ExpectedValue = (object)true },
                 new { Input = "let foobar = y", ExpectedIdentifier = "foobar", ExpectedValue = (object)"y" },
             };
@@ -29,8 +45,8 @@ namespace BooInterpreter
 
                 var statement = program.Statements.First() as LetStatement;
                 Assert.NotNull(statement);
-                AssertLetStatement(statement, test.ExpectedIdentifier);
-                AssertLiteralExpression(((LetStatement)statement).Value, test.ExpectedValue);
+                TestLetStatement(statement, test.ExpectedIdentifier);
+                TestLiteralExpression(((LetStatement)statement).Value, test.ExpectedValue);
             }
         }
 
@@ -38,9 +54,9 @@ namespace BooInterpreter
         public void Parser_ReturnStatements()
         {
             var tests = new[] {
-                new { Input = "return 5;", ExpectedReturnValue = (object)5},
-                new { Input = "return 5;", ExpectedReturnValue = (object)10},
-                new { Input = "return 5;", ExpectedReturnValue = (object)993322},
+                new { Input = "return 5;", ExpectedReturnValue = (object)5L},
+                new { Input = "return 10;", ExpectedReturnValue = (object)10L},
+                new { Input = "return 993322;", ExpectedReturnValue = (object)993322L},
             };
 
             foreach (var test in tests)
@@ -54,12 +70,12 @@ namespace BooInterpreter
                 var statement = program.Statements.First() as ReturnStatement;
                 Assert.NotNull(statement);
                 Assert.AreEqual("return", statement.TokenLiteral);
-                AssertLiteralExpression(statement.ReturnValue, test.ExpectedReturnValue);
+                TestLiteralExpression(statement.ReturnValue, test.ExpectedReturnValue);
             }
         }
 
         [Test]
-        public void Parser_IdentifierExpressions()
+        public void Parser_IdentifierExpression()
         {
             var input = "foobar;";
 
@@ -80,7 +96,7 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void Parser_IntegerLiteralExpressions()
+        public void Parser_IntegerLiteralExpression()
         {
             var input = "5;";
 
@@ -94,10 +110,10 @@ namespace BooInterpreter
             Assert.IsNotNull(statement);
             Assert.IsNotNull(statement.Expression);
 
-            var literal = statement.Expression as IntegerLiteral;
-            Assert.IsNotNull(literal);
-            Assert.AreEqual(5, literal.Value);
-            Assert.AreEqual("5", literal.TokenLiteral);
+            var expression = statement.Expression as IntegerLiteral;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual(5, expression.Value);
+            Assert.AreEqual("5", expression.TokenLiteral);
         }
 
         [Test]
@@ -106,8 +122,8 @@ namespace BooInterpreter
             var tests = new[] {
                 new { Input = "!5;", Operator = "!", Value = (object)5L },
                 new { Input = "-15;", Operator = "-", Value = (object)15L },
-                //new { Input = "!true;", Operator = "!", Value = (object)true },
-                //new { Input = "!false;", Operator = "!",  Value = (object)false }
+                new { Input = "!true;", Operator = "!", Value = (object)true },
+                new { Input = "!false;", Operator = "!",  Value = (object)false }
             };
 
             foreach (var test in tests)
@@ -125,7 +141,7 @@ namespace BooInterpreter
                 Assert.IsNotNull(expression);
                 Assert.AreEqual(test.Operator, expression.Operator);
 
-                AssertLiteralExpression(expression.Right, test.Value);
+                TestLiteralExpression(expression.Right, test.Value);
             }
         }
 
@@ -141,9 +157,9 @@ namespace BooInterpreter
                 new { Input = "5 < 5;", LeftValue = (object)5L, Operator = "<", RightValue = (object)5L },
                 new { Input = "5 == 5;", LeftValue = (object)5L, Operator = "==", RightValue = (object)5L },
                 new { Input = "5 != 5;", LeftValue = (object)5L, Operator = "!=", RightValue = (object)5L },
-                //new { Input = "true == true", LeftValue = (object)true, Operator = "==", RightValue = (object)true },
-                //new { Input = "true != false", LeftValue = (object)true, Operator = "!=", RightValue = (object)false },
-                //new { Input = "false == false", LeftValue = (object)false, Operator = "==", RightValue = (object)false }
+                new { Input = "true == true", LeftValue = (object)true, Operator = "==", RightValue = (object)true },
+                new { Input = "true != false", LeftValue = (object)true, Operator = "!=", RightValue = (object)false },
+                new { Input = "false == false", LeftValue = (object)false, Operator = "==", RightValue = (object)false }
             };
 
             foreach (var test in tests)
@@ -160,9 +176,9 @@ namespace BooInterpreter
                 var expression = statement.Expression as InfixExpression;
                 Assert.IsNotNull(expression);
 
-                AssertLiteralExpression(expression.Left, test.LeftValue);
+                TestLiteralExpression(expression.Left, test.LeftValue);
                 Assert.AreEqual(test.Operator, expression.Operator);
-                AssertLiteralExpression(expression.Right, test.RightValue);
+                TestLiteralExpression(expression.Right, test.RightValue);
             }
         }
 
@@ -210,31 +226,80 @@ namespace BooInterpreter
                 Assert.AreEqual(test.Value, actual);
             }
         }
+        
+        [Test]
+        public void Parser_BooleanExpressions()
+        {
+            var tests = new Dictionary<string, bool> {
+                { "true;", true },
+                { "false;", false },
+            };
+
+            foreach (var test in tests)
+            {
+                var lexer = new Lexer(test.Key);
+                var parser = new Parser(lexer);
+                var program = parser.ParseProgram();
+                CheckParserErrors(parser);
+                Assert.AreEqual(1, program.Statements.Length);
+
+                var statement = program.Statements[0] as ExpressionStatement;
+                Assert.IsNotNull(statement);
+
+                var expression = statement.Expression as Boolean;
+                Assert.IsNotNull(expression);
+                Assert.AreEqual(test.Value, expression.Value);
+                Assert.AreEqual(test.Value.ToString().ToLower(), expression.TokenLiteral);
+            }
+        }
 
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");
         }
 
-        private void AssertLetStatement(Statement statement, string expectedName)
+        private void TestLetStatement(Statement statement, string expectedName)
         {
             Assert.IsInstanceOf<LetStatement>(statement);
             Assert.AreEqual("let", statement.TokenLiteral);
             Assert.AreEqual(expectedName, ((LetStatement)statement).Name.TokenLiteral);
         }
 
-        private void AssertLiteralExpression(Expression expression, object value)
+        private void TestLiteralExpression(Expression expression, object value)
         {
             if (value is Int64)
-                AssertIntegerLiteral(expression, (Int64)value);
+                TestIntegerLiteral(expression, (Int64)value);
+            else if (value is string)
+                TestIdentifier(expression, (string)value);
+            else if (value is bool)
+                TestBooleanLiteral(expression, (bool)value);
+            else
+                Assert.Fail("Invalid type");
+        }
+        
+        private void TestIdentifier(Expression expression, string value)
+        {
+            var identifier = expression as Identifier;
+            Assert.NotNull(identifier);
+            Assert.AreEqual(identifier.Value, value);
+            Assert.AreEqual(value, identifier.TokenLiteral);
         }
 
-        private void AssertIntegerLiteral(Expression expression, Int64 value)
+        private void TestIntegerLiteral(Expression expression, Int64 value)
         {
-            var integer = expression as IntegerLiteral;
-            Assert.NotNull(integer);
-            Assert.AreEqual(integer.Value, value);
-            Assert.AreEqual($"{value}", integer.TokenLiteral);
+            var integerLiteral = expression as IntegerLiteral;
+            Assert.NotNull(integerLiteral);
+            Assert.AreEqual(integerLiteral.Value, value);
+            Assert.AreEqual($"{value}", integerLiteral.TokenLiteral);
         }
+
+        private void TestBooleanLiteral(Expression expression, bool value)
+        {
+            var boolean = expression as Boolean;
+            Assert.NotNull(boolean);
+            Assert.AreEqual(boolean.Value, value);
+            Assert.AreEqual(value.ToString().ToLower(), boolean.TokenLiteral);
+        }
+
     }
 }
