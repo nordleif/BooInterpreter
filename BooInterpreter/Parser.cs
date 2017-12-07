@@ -29,8 +29,8 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.MINUS, ParsePrefixExpression);
             m_prefixParse.Add(TokenType.TRUE, ParseBoolean);
             m_prefixParse.Add(TokenType.FALSE, ParseBoolean);
-
-
+            m_prefixParse.Add(TokenType.LPAREN, ParseGroupedExpression);
+            
             m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
             m_infixParse.Add(TokenType.MINUS, ParseInfixExpression);
@@ -215,6 +215,18 @@ namespace BooInterpreter
         private Boolean ParseBoolean()
         {
             return new Boolean { Token = CurrentToken, Value = CurrentTokenIs(TokenType.TRUE) };
+        }
+
+        private Expression ParseGroupedExpression()
+        {
+            NextToken();
+
+            var expression = ParseExpression(Precedence.Lowest);
+
+            if (!ExpectPeek(TokenType.RPAREN))
+                return null;
+
+            return expression;
         }
 
         private Precedence CurrentPrecedence()

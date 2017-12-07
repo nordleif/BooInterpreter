@@ -199,15 +199,15 @@ namespace BooInterpreter
                 { "5 > 4 == 3 < 4", "((5 > 4) == (3 < 4))"},
                 { "5 < 4 != 3 > 4", "((5 < 4) != (3 > 4))"},
                 { "3 + 4 * 5 == 3 * 1 + 4 * 5", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"},
-                //{"true", "true"},
-                //{"false", "false"},
-                //{"3 > 5 == false", "((3 > 5) == false)"},
-                //{"3 < 5 == true", "((3 < 5) == true)"},
-                //{"1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"},
-                //{"(5 + 5) * 2", "((5 + 5) * 2)"},
-                //{"2 / (5 + 5)", "(2 / (5 + 5))"},
-                //{"-(5 + 5)", "(-(5 + 5))"},
-                //{"!(true == true)", "(!(true == true))"},
+                {"true", "true"},
+                {"false", "false"},
+                {"3 > 5 == false", "((3 > 5) == false)"},
+                {"3 < 5 == true", "((3 < 5) == true)"},
+                {"1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)"},
+                {"(5 + 5) * 2", "((5 + 5) * 2)"},
+                {"2 / (5 + 5)", "(2 / (5 + 5))"},
+                {"-(5 + 5)", "(-(5 + 5))"},
+                {"!(true == true)", "(!(true == true))"},
                 //{"a + add(b * c) + d", "((a + add((b * c))) + d)"},
                 //{"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"},
                 //{"add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"},
@@ -222,7 +222,7 @@ namespace BooInterpreter
                 var program = parser.ParseProgram();
                 CheckParserErrors(parser);
 
-                var actual = program.ToString();
+                var actual = program.ToString().ToLower();
                 Assert.AreEqual(test.Value, actual);
             }
         }
