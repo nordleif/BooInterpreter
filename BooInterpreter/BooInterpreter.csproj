@@ -48,10 +48,12 @@
   <ItemGroup>
     <Compile Include="Expression.cs" />
     <Compile Include="Expressions\Boolean.cs" />
+    <Compile Include="Expressions\IfExpression.cs" />
     <Compile Include="Expressions\InfixExpression.cs" />
     <Compile Include="Expressions\IntegerLiteral.cs" />
     <Compile Include="Expressions\PrefixExpression.cs" />
     <Compile Include="Precedence.cs" />
+    <Compile Include="Statements\BlockStatement.cs" />
     <Compile Include="Statements\ExpressionStatement.cs" />
     <Compile Include="Expressions\Identifier.cs" />
     <Compile Include="Node.cs" />

@@ -176,12 +176,10 @@ namespace BooInterpreter
                 var expression = statement.Expression as InfixExpression;
                 Assert.IsNotNull(expression);
 
-                TestLiteralExpression(expression.Left, test.LeftValue);
-                Assert.AreEqual(test.Operator, expression.Operator);
-                TestLiteralExpression(expression.Right, test.RightValue);
+                TestInfixExpression(expression, test.LeftValue, test.Operator, test.RightValue);
             }
         }
-
+        
         [Test]
         public void Parser_OperatorPrecedence()
         {
@@ -253,6 +251,65 @@ namespace BooInterpreter
             }
         }
 
+        [Test]
+        public void Parser_IfExpression()
+        {
+            var input = "if (x < y) { x }";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+            
+            var expression = statement.Expression as IfExpression;
+            Assert.IsNotNull(expression);
+
+            TestInfixExpression(expression.Condition, "x", "<", "y");
+
+            Assert.AreEqual(1, expression.Consequence.Statements.Length);
+
+            var consequence = expression.Consequence.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(consequence);
+
+            TestIdentifier(consequence.Expression, "x");
+
+            Assert.IsNull(expression.Alternative);
+        }
+
+        [Test]
+        public void Parser_IfElseExpression()
+        {
+            var input = "if (x < y) { x } else { y }";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+
+            var expression = statement.Expression as IfExpression;
+            Assert.IsNotNull(expression);
+
+            TestInfixExpression(expression.Condition, "x", "<", "y");
+
+            Assert.AreEqual(1, expression.Consequence.Statements.Length);
+            var consequence = expression.Consequence.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(consequence);
+            TestIdentifier(consequence.Expression, "x");
+
+            Assert.AreEqual(1, expression.Alternative.Statements.Length);
+            var alternative = expression.Alternative.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(alternative);
+            TestIdentifier(alternative.Expression, "y");
+        }
+
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");
@@ -276,7 +333,18 @@ namespace BooInterpreter
             else
                 Assert.Fail("Invalid type");
         }
-        
+
+        private void TestInfixExpression(Expression expression, object left, string @operator, object right)
+        {
+            var infixExpression = expression as InfixExpression;
+            Assert.IsNotNull(infixExpression);
+
+            TestLiteralExpression(infixExpression.Left, left);
+            Assert.AreEqual(@operator, infixExpression.Operator);
+
+            TestLiteralExpression(infixExpression.Right, right);
+        }
+
         private void TestIdentifier(Expression expression, string value)
         {
             var identifier = expression as Identifier;

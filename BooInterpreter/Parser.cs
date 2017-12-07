@@ -30,6 +30,7 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.TRUE, ParseBoolean);
             m_prefixParse.Add(TokenType.FALSE, ParseBoolean);
             m_prefixParse.Add(TokenType.LPAREN, ParseGroupedExpression);
+            m_prefixParse.Add(TokenType.IF, ParseIfExpression);
             
             m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
@@ -227,6 +228,57 @@ namespace BooInterpreter
                 return null;
 
             return expression;
+        }
+
+        private Expression ParseIfExpression()
+        {
+            var expression = new IfExpression { Token = CurrentToken };
+
+            if (!ExpectPeek(TokenType.LPAREN))
+                return null;
+
+            NextToken();
+            expression.Condition = ParseExpression(Precedence.Lowest);
+
+            if (!ExpectPeek(TokenType.RPAREN))
+                return null;
+
+            if (!ExpectPeek(TokenType.LBRACE))
+                return null;
+
+            expression.Consequence = ParseBlockStatement();
+
+            if (PeekTokenIs(TokenType.ELSE))
+            {
+                NextToken();
+
+                if (!ExpectPeek(TokenType.LBRACE))
+                    return null;
+
+                expression.Alternative = ParseBlockStatement();
+            }
+
+            return expression;
+        }
+
+        private BlockStatement ParseBlockStatement()
+        {
+            var block = new BlockStatement { Token = CurrentToken };
+            
+            NextToken();
+
+            var statements = new List<Statement>();
+            while(!CurrentTokenIs(TokenType.RBRACE) && !CurrentTokenIs(TokenType.EOF))
+            {
+                var statement = ParseStatement();
+                if (statement != null)
+                    statements.Add(statement);
+                NextToken();
+            }
+            block.Statements = statements.ToArray();
+            
+
+            return block;
         }
 
         private Precedence CurrentPrecedence()

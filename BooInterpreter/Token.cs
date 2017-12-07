@@ -23,5 +23,10 @@ namespace BooInterpreter
         public TokenType Type { get; set; }
 
         public string Literal { get; set; }
+
+        public override string ToString()
+        {
+            return Literal;
+        }
     }
 }
