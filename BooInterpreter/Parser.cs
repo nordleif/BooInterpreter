@@ -31,6 +31,7 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.FALSE, ParseBoolean);
             m_prefixParse.Add(TokenType.LPAREN, ParseGroupedExpression);
             m_prefixParse.Add(TokenType.IF, ParseIfExpression);
+            m_prefixParse.Add(TokenType.FUNCTION, ParseFunctionLiteral);
             
             m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
@@ -279,6 +280,50 @@ namespace BooInterpreter
             
 
             return block;
+        }
+
+        private FunctionLiteral ParseFunctionLiteral()
+        {
+            var literal = new FunctionLiteral { Token = CurrentToken };
+
+            if (!ExpectPeek(TokenType.LPAREN))
+                return null;
+
+            literal.Parameters = ParseFunctionParameters();
+
+            if (!ExpectPeek(TokenType.LBRACE))
+                return null;
+
+            literal.Body = ParseBlockStatement();
+            
+            return literal;
+        }
+
+        private Identifier[] ParseFunctionParameters()
+        {
+            var identifiers = new List<Identifier>();
+
+            if (PeekTokenIs(TokenType.RPAREN))
+            {
+                NextToken();
+                return identifiers.ToArray();
+            }
+
+            NextToken();
+            
+            identifiers.Add(new Identifier { Token = CurrentToken, Value = CurrentToken.Literal });
+
+            while(PeekTokenIs(TokenType.COMMA))
+            {
+                NextToken();
+                NextToken();
+                identifiers.Add(new Identifier { Token = CurrentToken, Value = CurrentToken.Literal });
+            }
+
+            if (!ExpectPeek(TokenType.RPAREN))
+                return null;
+
+            return identifiers.ToArray();
         }
 
         private Precedence CurrentPrecedence()

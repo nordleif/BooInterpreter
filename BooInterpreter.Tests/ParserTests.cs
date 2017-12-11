@@ -310,6 +310,61 @@ namespace BooInterpreter
             TestIdentifier(alternative.Expression, "y");
         }
 
+        [Test]
+        public void Parser_FunctionLiteral()
+        {
+            var input = "fn(x, y) { x + y; }";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+
+            var function = statement.Expression as FunctionLiteral;
+            Assert.IsNotNull(function);
+            Assert.AreEqual(2, function.Parameters.Length);
+
+            TestLiteralExpression(function.Parameters[0], "x");
+            TestLiteralExpression(function.Parameters[1], "y");
+
+            Assert.AreEqual(1, function.Body.Statements.Length);
+            var bodyStatement = function.Body.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(bodyStatement);
+            TestInfixExpression(bodyStatement.Expression, "x", "+", "y");
+        }
+
+        [Test]
+        public void Parser_FunctionParameters()
+        {
+            var tests = new[] {
+                new { Input = "fn() {};", ExpectedParams = new string[0] },
+                new { Input = "fn(x) {};", ExpectedParams = new [] {"x"} },
+                new { Input = "fn(x, y, z) {};",  ExpectedParams = new [] {"x", "y", "z"} }
+            };
+
+            foreach (var test in tests)
+            {
+                var lexer = new Lexer(test.Input);
+                var parser = new Parser(lexer);
+                var program = parser.ParseProgram();
+                CheckParserErrors(parser);
+
+                var stmt = program.Statements[0] as ExpressionStatement;
+                var function = stmt.Expression as FunctionLiteral;
+                Assert.AreEqual(test.ExpectedParams.Length, function.Parameters.Length);
+
+                for (var i = 0; i < test.ExpectedParams.Length; i++)
+                {
+                    var ident = test.ExpectedParams[i];
+                    TestLiteralExpression(function.Parameters[i], ident);
+                }
+            }
+        }
+
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");

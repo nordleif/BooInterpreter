@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="Expression.cs" />
     <Compile Include="Expressions\Boolean.cs" />
+    <Compile Include="Expressions\FunctionLiteral.cs" />
     <Compile Include="Expressions\IfExpression.cs" />
     <Compile Include="Expressions\InfixExpression.cs" />
     <Compile Include="Expressions\IntegerLiteral.cs" />
