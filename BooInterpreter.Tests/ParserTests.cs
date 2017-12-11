@@ -31,7 +31,7 @@ namespace BooInterpreter
         {
             var tests = new[] {
                 new { Input = "let x = 5;", ExpectedIdentifier = "x", ExpectedValue = (object)5L },
-                //new { Input = "let y = true;", ExpectedIdentifier = "y", ExpectedValue = (object)true },
+                new { Input = "let y = true;", ExpectedIdentifier = "y", ExpectedValue = (object)true },
                 new { Input = "let foobar = y", ExpectedIdentifier = "foobar", ExpectedValue = (object)"y" },
             };
 
