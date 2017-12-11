@@ -15,6 +15,6 @@ namespace BooInterpreter
 
         public Token Token { get; set; }
 
-        public override string TokenLiteral => Token.Literal;
+        public string TokenLiteral => Token.Literal;
     }
 }

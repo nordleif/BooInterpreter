@@ -10,7 +10,7 @@ namespace BooInterpreter
     {
         static void Main(string[] args)
         {
-            var prompt = ">> ";
+            var prompt = ">>> ";
             while (true)
             {
                 //Console.Write(prompt);

@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter
 {
-    public class Node
+    public enum ObjectType
     {
+        Integer,
+        Boolean,
+        Null,
     }
 }

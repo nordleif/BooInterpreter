@@ -17,7 +17,7 @@ namespace BooInterpreter
 
         public Statement[] Statements { get; set; }
 
-        public override string TokenLiteral => Statements?.FirstOrDefault()?.TokenLiteral ?? string.Empty;
+        public string TokenLiteral => Statements?.FirstOrDefault()?.TokenLiteral ?? string.Empty;
 
         public override string ToString()
         {
