@@ -19,7 +19,7 @@ namespace BooInterpreter
 
         public override string ToString()
         {
-            return $"{TokenLiteral}({string.Join(", ", Parameters?.Select(p => p).ToString())}){Body}";
+            return $"{TokenLiteral}({string.Join(", ", Parameters?.Select(p => p.ToString()))}){Body}";
         }
     }
 }
