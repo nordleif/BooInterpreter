@@ -206,9 +206,9 @@ namespace BooInterpreter
                 {"2 / (5 + 5)", "(2 / (5 + 5))"},
                 {"-(5 + 5)", "(-(5 + 5))"},
                 {"!(true == true)", "(!(true == true))"},
-                //{"a + add(b * c) + d", "((a + add((b * c))) + d)"},
-                //{"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"},
-                //{"add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"},
+                {"a + add(b * c) + d", "((a + add((b * c))) + d)"},
+                {"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"},
+                {"add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"},
                 //{"a * [1, 2, 3, 4][b * c] * d", "((a * ([1, 2, 3, 4][(b * c)])) * d)"},
                 //{"add(a * b[2], b[1], 2 * [1, 2][1])", "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))"}
             };
@@ -363,6 +363,31 @@ namespace BooInterpreter
                     TestLiteralExpression(function.Parameters[i], ident);
                 }
             }
+        }
+
+        [Test]
+        public void Parser_CallExpression()
+        {
+            var input = "add(1, 2 * 3, 4 + 5);";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+
+            var expression = statement.Expression as CallExpression;
+            Assert.IsNotNull(expression);
+
+            TestIdentifier(expression.Function, "add");
+
+            Assert.AreEqual(3, expression.Arguments.Length);
+            TestLiteralExpression(expression.Arguments[0], 1L);
+            TestInfixExpression(expression.Arguments[1], 2L, "*", 3L);
+            TestInfixExpression(expression.Arguments[2], 4L, "+", 5L);
         }
 
         private void CheckParserErrors(Parser parser)
