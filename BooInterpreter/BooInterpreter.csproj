@@ -46,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Enums.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="Expression.cs" />
     <Compile Include="Expressions\BooleanLiteral.cs" />
@@ -59,8 +60,6 @@
     <Compile Include="Objects\Boolean.cs" />
     <Compile Include="Objects\Integer.cs" />
     <Compile Include="Objects\Null.cs" />
-    <Compile Include="ObjectType.cs" />
-    <Compile Include="Precedence.cs" />
     <Compile Include="Statements\BlockStatement.cs" />
     <Compile Include="Statements\ExpressionStatement.cs" />
     <Compile Include="Expressions\Identifier.cs" />
@@ -72,7 +71,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Token.cs" />
-    <Compile Include="TokenType.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

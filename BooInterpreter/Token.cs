@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter
 {
-    public class Token
+    public struct Token
     {
         public Token(TokenType type, char literal)
         {

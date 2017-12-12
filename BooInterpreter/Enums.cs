@@ -6,11 +6,30 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter
 {
-    public enum TokenType 
+    public enum ObjectType
+    {
+        Integer,
+        Boolean,
+        Null,
+    }
+
+    public enum Precedence
+    {
+        Lowest = 0,
+        Equals,      // ==
+        LessGreater, // > or <
+        Sum,         // +
+        Product,     // *
+        Prefix,      // -X or !X
+        Call,        // myFunction(X)
+        Index,       // array[index]
+    }
+    
+    public enum TokenType
     {
         ILLEGAL,
         EOF,
-        
+
         // Identifiers + literals
         IDENT, // add, foobar, x, y, ...
         INT, // 1343456
