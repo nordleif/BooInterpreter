@@ -33,13 +33,7 @@ namespace BooInterpreter
 
             else if (node is ExpressionStatement statement)
                 return Eval(statement.Expression);
-
-            else if (node is BlockStatement block)
-                return EvalStatements(block.Statements);
-
-            else if (node is IfExpression ifExpression)
-                return EvalIfExpression(ifExpression);
-
+            
             else if (node is IntegerLiteral integer)
                 return new Integer { Value = integer.Value };
 
@@ -52,6 +46,15 @@ namespace BooInterpreter
             else if (node is InfixExpression infix)
                 return EvalInfixExpression(infix.Operator, Eval(infix.Left), Eval(infix.Right));
 
+            else if (node is BlockStatement block)
+                return EvalStatements(block.Statements);
+
+            else if (node is IfExpression ifExpression)
+                return EvalIfExpression(ifExpression);
+
+            else if (node is ReturnStatement returnStatement)
+                return new ReturnValue { Value = Eval(returnStatement.ReturnValue) };
+
             return m_null;
         }
 
@@ -60,7 +63,11 @@ namespace BooInterpreter
             object result = null;
 
             foreach (var statement in statements)
+            {
                 result = Eval(statement);
+                if (result is ReturnValue returnValue)
+                    return returnValue.Value;
+            }
 
             return result;
         }
@@ -149,7 +156,7 @@ namespace BooInterpreter
             else
                 return m_null;
         }
-
+        
         private Boolean NativeBoolToBooleanObject(bool input)
         {
             return input ? m_true : m_false;

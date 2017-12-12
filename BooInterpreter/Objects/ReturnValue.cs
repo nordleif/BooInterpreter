@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class Boolean
+    public class ReturnValue
     {
-        public Boolean()
+        public ReturnValue()
         {
 
         }
 
-        public ObjectType Type => ObjectType.Boolean;
+        public ObjectType Type => ObjectType.ReturnValue;
 
-        public bool Value { get; set; }
+        public object Value { get; set; }
 
         public override string ToString()
         {

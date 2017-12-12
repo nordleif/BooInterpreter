@@ -8,9 +8,10 @@ namespace BooInterpreter
 {
     public enum ObjectType
     {
-        Integer,
-        Boolean,
         Null,
+        Boolean,
+        Integer,
+        ReturnValue,
     }
 
     public enum Precedence

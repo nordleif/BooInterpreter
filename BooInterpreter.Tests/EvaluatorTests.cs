@@ -93,7 +93,7 @@ namespace BooInterpreter
         [Test]
         public void Evaluator_EvalIfElseExpressions()
         {
-            var tests = new Dictionary<string, long?> {
+            var tests = new Dictionary<string, Int64?> {
                 {"if (true) { 10 }", 10},
                 {"if (false) { 10 }", null},
                 {"if (1) { 10 }", 10},
@@ -110,6 +110,46 @@ namespace BooInterpreter
                     TestIntegerObject(evaluated, test.Value.Value);
                 else
                     TestNullObject(evaluated);
+            }
+        }
+
+        [Test]
+        public void Evaluator_EvalReturnStatements()
+        {
+            var tests = new Dictionary<string, Int64> {
+                {"return 10;", 10},
+                {"return 10; 9;", 10},
+                {"return 2 * 5; 9;", 10},
+                {"9; return 2 * 5; 9;", 10},
+                //{"if (10 > 1) { return 10; }", 10},
+                //{@" if (10 > 1)
+                //    {
+                //        if (10 > 1)
+                //        {
+                //            return 10;
+                //        }
+                //        return 1;
+                //    }", 10
+                //},
+                //{@" let f = fn(x) {
+                //        return x;
+                //        x + 10;
+                //    };
+                //    f(10);", 10
+                //},
+                //{@" let f = fn(x) {
+                //        let result = x + 10;
+                //        return result;
+                //        return 10;
+                //    };
+                //    f(10);", 20
+                //}
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+                TestIntegerObject(evaluated, test.Value);
             }
         }
 

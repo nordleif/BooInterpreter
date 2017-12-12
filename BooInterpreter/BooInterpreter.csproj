@@ -60,6 +60,7 @@
     <Compile Include="Objects\Boolean.cs" />
     <Compile Include="Objects\Integer.cs" />
     <Compile Include="Objects\Null.cs" />
+    <Compile Include="Objects\ReturnValue.cs" />
     <Compile Include="Statements\BlockStatement.cs" />
     <Compile Include="Statements\ExpressionStatement.cs" />
     <Compile Include="Expressions\Identifier.cs" />
