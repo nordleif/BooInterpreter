@@ -12,10 +12,9 @@ namespace BooInterpreter
     public class EvaluatorTests
     {
         [Test]
-        public void Evaluator_EvalIntegerExpression()
+        public void Evaluator_EvalIntegerExpressions()
         {
-            var tests = new Dictionary<string, Int64>
-            {
+            var tests = new Dictionary<string, Int64> {
                 {"5", 5},
                 {"10", 10},
                 {"-5", -5},
@@ -41,10 +40,9 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void Evaluator_EvalBooleanExpression()
+        public void Evaluator_EvalBooleanExpressions()
         {
-            var tests = new Dictionary<string, bool>
-            {
+            var tests = new Dictionary<string, bool> {
                 {"true", true},
                 {"false", false},
                 {"1 > 2", false},
@@ -76,8 +74,7 @@ namespace BooInterpreter
         [Test]
         public void Evaluator_EvalBangOperator()
         {
-            var tests = new Dictionary<string, bool>
-            {
+            var tests = new Dictionary<string, bool> {
                 {"!true", false},
                 {"!false", true},
                 {"!5", false},
@@ -90,6 +87,29 @@ namespace BooInterpreter
             {
                 var evaluated = TestEval(test.Key);
                 TestBooleanObject(evaluated, test.Value);
+            }
+        }
+
+        [Test]
+        public void Evaluator_EvalIfElseExpressions()
+        {
+            var tests = new Dictionary<string, long?> {
+                {"if (true) { 10 }", 10},
+                {"if (false) { 10 }", null},
+                {"if (1) { 10 }", 10},
+                {"if (1 < 2) { 10 }", 10},
+                {"if (1 > 2) { 10 }", null},
+                {"if (1 > 2) { 10 } else { 20 }", 20},
+                {"if (1 < 2) { 10 } else { 20 }", 10}
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+                if (test.Value.HasValue)
+                    TestIntegerObject(evaluated, test.Value.Value);
+                else
+                    TestNullObject(evaluated);
             }
         }
 
@@ -114,6 +134,11 @@ namespace BooInterpreter
             var actual = obj as Boolean;
             Assert.IsNotNull(actual);
             Assert.AreEqual(expected, actual.Value);
+        }
+
+        private void TestNullObject(object obj)
+        {
+            Assert.IsInstanceOf<Null>(obj);
         }
     }
 }

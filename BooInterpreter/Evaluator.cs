@@ -34,6 +34,12 @@ namespace BooInterpreter
             else if (node is ExpressionStatement statement)
                 return Eval(statement.Expression);
 
+            else if (node is BlockStatement block)
+                return EvalStatements(block.Statements);
+
+            else if (node is IfExpression ifExpression)
+                return EvalIfExpression(ifExpression);
+
             else if (node is IntegerLiteral integer)
                 return new Integer { Value = integer.Value };
 
@@ -58,7 +64,7 @@ namespace BooInterpreter
 
             return result;
         }
-
+        
         private object EvalPrefixExpression(string op, object right)
         {
             switch(op)
@@ -132,9 +138,33 @@ namespace BooInterpreter
             }
         }
 
+        private object EvalIfExpression(IfExpression ifExpression)
+        {
+            var condition = Eval(ifExpression.Condition);
+
+            if (IsTruthy(condition))
+                return Eval(ifExpression.Consequence);
+            else if (ifExpression.Alternative != null)
+                return Eval(ifExpression.Alternative);
+            else
+                return m_null;
+        }
+
         private Boolean NativeBoolToBooleanObject(bool input)
         {
             return input ? m_true : m_false;
+        }
+
+        private bool IsTruthy(object obj)
+        {
+            if (obj.Equals(m_null))
+                return false;
+            else if (obj.Equals(m_true))
+                return true;
+            else if (obj.Equals(m_false))
+                return false;
+            else
+                return true;
         }
     }
 }
