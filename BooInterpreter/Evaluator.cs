@@ -43,6 +43,9 @@ namespace BooInterpreter
             else if (node is PrefixExpression prefix)
                 return EvalPrefixExpression(prefix.Operator, Eval(prefix.Right));
 
+            else if (node is InfixExpression infix)
+                return EvalInfixExpression(infix.Operator, Eval(infix.Left), Eval(infix.Right));
+
             return m_null;
         }
 
@@ -86,6 +89,47 @@ namespace BooInterpreter
             else
                 return m_null;
 
+        }
+
+        private object EvalInfixExpression(string op, object left, object right)
+        {
+            if (left is Integer && right is Integer)
+                return EvalIntegerInfixExpression(op, (Integer)left, (Integer)right);
+         
+            switch(op)
+            {
+                case "==":
+                    return NativeBoolToBooleanObject(left == right);
+                case "!=":
+                    return NativeBoolToBooleanObject(left != right);
+            }
+            
+            return m_null;
+        }
+
+        private object EvalIntegerInfixExpression(string op, Integer left, Integer right)
+        {
+            switch(op)
+            {
+                case "+":
+                    return new Integer { Value = left.Value + right.Value };
+                case "-":
+                    return new Integer { Value = left.Value - right.Value };
+                case "*":
+                    return new Integer { Value = left.Value * right.Value };
+                case "/":
+                    return new Integer { Value = left.Value / right.Value };
+                case "<":
+                    return NativeBoolToBooleanObject(left.Value < right.Value);
+                case ">":
+                    return NativeBoolToBooleanObject(left.Value > right.Value);
+                case "==":
+                    return NativeBoolToBooleanObject(left.Value == right.Value);
+                case "!=":
+                    return NativeBoolToBooleanObject(left.Value != right.Value);
+                default:
+                    return m_null;
+            }
         }
 
         private Boolean NativeBoolToBooleanObject(bool input)
