@@ -226,7 +226,7 @@ namespace BooInterpreter
         }
         
         [Test]
-        public void Parser_BooleanExpressions()
+        public void Parser_BooleanLiteralExpressions()
         {
             var tests = new Dictionary<string, bool> {
                 { "true;", true },
@@ -244,7 +244,7 @@ namespace BooInterpreter
                 var statement = program.Statements[0] as ExpressionStatement;
                 Assert.IsNotNull(statement);
 
-                var expression = statement.Expression as Boolean;
+                var expression = statement.Expression as BooleanLiteral;
                 Assert.IsNotNull(expression);
                 Assert.AreEqual(test.Value, expression.Value);
                 Assert.AreEqual(test.Value.ToString().ToLower(), expression.TokenLiteral);
@@ -443,7 +443,7 @@ namespace BooInterpreter
 
         private void TestBooleanLiteral(Expression expression, bool value)
         {
-            var boolean = expression as Boolean;
+            var boolean = expression as BooleanLiteral;
             Assert.NotNull(boolean);
             Assert.AreEqual(boolean.Value, value);
             Assert.AreEqual(value.ToString().ToLower(), boolean.TokenLiteral);

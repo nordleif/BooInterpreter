@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter
 {
-    public class Boolean : Expression
+    public class BooleanLiteral : Expression
     {
-        public Boolean()
+        public BooleanLiteral()
         {
 
         }

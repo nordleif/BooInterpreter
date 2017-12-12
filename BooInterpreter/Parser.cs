@@ -216,9 +216,9 @@ namespace BooInterpreter
             return expression;
         }
 
-        private Boolean ParseBoolean()
+        private BooleanLiteral ParseBoolean()
         {
-            return new Boolean { Token = CurrentToken, Value = CurrentTokenIs(TokenType.TRUE) };
+            return new BooleanLiteral { Token = CurrentToken, Value = CurrentTokenIs(TokenType.TRUE) };
         }
 
         private Expression ParseGroupedExpression()

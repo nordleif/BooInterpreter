@@ -3,11 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BooInterpreter.Objects;
+using Boolean = BooInterpreter.Objects.Boolean;
 
 namespace BooInterpreter
 {
     public class Evaluator
     {
+        #region Static Members
+
+        private static readonly Null m_null = new Null { };
+        private static readonly Boolean m_false = new Boolean { Value = false };
+        private static readonly Boolean m_true = new Boolean { Value = true };
+
+        #endregion
+
         public Evaluator()
         {
 
@@ -24,10 +34,16 @@ namespace BooInterpreter
             else if (node is ExpressionStatement statement)
                 return Eval(statement.Expression);
 
-            else if (node is IntegerLiteral literal)
-                return literal.Value;
+            else if (node is IntegerLiteral integer)
+                return new Integer { Value = integer.Value };
 
-            return null;
+            else if (node is BooleanLiteral boolean)
+                return NativeBoolToBooleanObject(boolean.Value);
+
+            else if (node is PrefixExpression prefix)
+                return EvalPrefixExpression(prefix.Operator, Eval(prefix.Right));
+
+            return m_null;
         }
 
         private object EvalStatements(Statement[] statements)
@@ -38,6 +54,43 @@ namespace BooInterpreter
                 result = Eval(statement);
 
             return result;
+        }
+
+        private object EvalPrefixExpression(string op, object right)
+        {
+            switch(op)
+            {
+                case "!":
+                    return EvalBangOperatorExpression(right);
+                case "-":
+                    return EvalMinusPrefixOperatorExpression(right);
+                default:
+                    return m_null;
+            }
+        }
+
+        private object EvalBangOperatorExpression(object right)
+        {
+            if (right is Boolean boolean)
+                return boolean.Equals(m_true) ? m_false : m_true;
+            else if (right is Null)
+                return m_true;
+            else
+                return m_false;
+        }
+
+        private object EvalMinusPrefixOperatorExpression(object right)
+        {
+            if (right is Integer integer)
+                return new Integer { Value = -integer.Value };
+            else
+                return m_null;
+
+        }
+
+        private Boolean NativeBoolToBooleanObject(bool input)
+        {
+            return input ? m_true : m_false;
         }
     }
 }
