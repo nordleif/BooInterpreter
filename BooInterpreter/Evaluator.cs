@@ -29,11 +29,14 @@ namespace BooInterpreter
                 throw new ArgumentNullException(nameof(node));
 
             else if (node is Program program)
-                return EvalStatements(program.Statements);
+                return EvalProgram(program);
+
+            else if (node is BlockStatement block)
+                return EvalBlockStatement(block);
 
             else if (node is ExpressionStatement statement)
                 return Eval(statement.Expression);
-            
+
             else if (node is IntegerLiteral integer)
                 return new Integer { Value = integer.Value };
 
@@ -45,10 +48,7 @@ namespace BooInterpreter
 
             else if (node is InfixExpression infix)
                 return EvalInfixExpression(infix.Operator, Eval(infix.Left), Eval(infix.Right));
-
-            else if (node is BlockStatement block)
-                return EvalStatements(block.Statements);
-
+            
             else if (node is IfExpression ifExpression)
                 return EvalIfExpression(ifExpression);
 
@@ -58,17 +58,31 @@ namespace BooInterpreter
             return m_null;
         }
 
-        private object EvalStatements(Statement[] statements)
+        private object EvalProgram(Program program)
         {
             object result = null;
 
-            foreach (var statement in statements)
+            foreach (var statement in program.Statements)
             {
                 result = Eval(statement);
                 if (result is ReturnValue returnValue)
                     return returnValue.Value;
             }
 
+            return result;
+        }
+
+        private object EvalBlockStatement(BlockStatement block)
+        {
+            object result = null;
+
+            foreach(var statement in block.Statements)
+            {
+                result = Eval(statement);
+                if (result is ReturnValue returnValue)
+                    return returnValue;
+            }
+            
             return result;
         }
         
