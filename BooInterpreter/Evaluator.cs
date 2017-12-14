@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BooInterpreter.Objects;
+using Object = BooInterpreter.Objects.Object;
 using Boolean = BooInterpreter.Objects.Boolean;
 
 namespace BooInterpreter
@@ -23,7 +24,7 @@ namespace BooInterpreter
 
         }
 
-        public object Eval(Node node)
+        public Object Eval(Node node)
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
@@ -44,49 +45,74 @@ namespace BooInterpreter
                 return NativeBoolToBooleanObject(boolean.Value);
 
             else if (node is PrefixExpression prefix)
-                return EvalPrefixExpression(prefix.Operator, Eval(prefix.Right));
+            {
+                var value = Eval(prefix.Right);
+                if (value is Error)
+                    return value;
+                return EvalPrefixExpression(prefix.Operator, value);
+            }
 
             else if (node is InfixExpression infix)
-                return EvalInfixExpression(infix.Operator, Eval(infix.Left), Eval(infix.Right));
+            {
+                var left = Eval(infix.Left);
+                if (left is Error)
+                    return left;
+
+                var right = Eval(infix.Right);
+                if (right is Error)
+                    return right;
+
+                return EvalInfixExpression(infix.Operator, left, right);
+            }
             
             else if (node is IfExpression ifExpression)
                 return EvalIfExpression(ifExpression);
 
             else if (node is ReturnStatement returnStatement)
-                return new ReturnValue { Value = Eval(returnStatement.ReturnValue) };
+            {
+                var value = Eval(returnStatement.ReturnValue);
+                if (value is Error)
+                    return value;
+                return new ReturnValue { Value = value };
+            }
 
             return m_null;
         }
 
-        private object EvalProgram(Program program)
+        private Object EvalProgram(Program program)
         {
-            object result = null;
+            Object result = null;
 
             foreach (var statement in program.Statements)
             {
                 result = Eval(statement);
+
                 if (result is ReturnValue returnValue)
                     return returnValue.Value;
+                else if (result is Error error)
+                    return error;
             }
 
             return result;
         }
 
-        private object EvalBlockStatement(BlockStatement block)
+        private Object EvalBlockStatement(BlockStatement block)
         {
-            object result = null;
+            Object result = null;
 
             foreach(var statement in block.Statements)
             {
                 result = Eval(statement);
                 if (result is ReturnValue returnValue)
                     return returnValue;
+                else if (result is Error error)
+                    return error;
             }
             
             return result;
         }
         
-        private object EvalPrefixExpression(string op, object right)
+        private Object EvalPrefixExpression(string op, Object right)
         {
             switch(op)
             {
@@ -95,11 +121,11 @@ namespace BooInterpreter
                 case "-":
                     return EvalMinusPrefixOperatorExpression(right);
                 default:
-                    return m_null;
+                    return new Error { Message = $"unknown operator: {op}{right.Type}" };
             }
         }
 
-        private object EvalBangOperatorExpression(object right)
+        private Object EvalBangOperatorExpression(Object right)
         {
             if (right is Boolean boolean)
                 return boolean.Equals(m_true) ? m_false : m_true;
@@ -109,17 +135,20 @@ namespace BooInterpreter
                 return m_false;
         }
 
-        private object EvalMinusPrefixOperatorExpression(object right)
+        private Object EvalMinusPrefixOperatorExpression(Object right)
         {
             if (right is Integer integer)
                 return new Integer { Value = -integer.Value };
             else
-                return m_null;
+                return new Error { Message = $"unknown operator: -{right.Type}" };
 
         }
 
-        private object EvalInfixExpression(string op, object left, object right)
+        private Object EvalInfixExpression(string op, Object left, Object right)
         {
+            if (left.Type != right.Type)
+                return new Error { Message = $"type mismatch: {left.Type} {op} {right.Type}" }; 
+
             if (left is Integer && right is Integer)
                 return EvalIntegerInfixExpression(op, (Integer)left, (Integer)right);
          
@@ -131,10 +160,10 @@ namespace BooInterpreter
                     return NativeBoolToBooleanObject(left != right);
             }
             
-            return m_null;
+            return new Error { Message = $"unknown operator: {left.Type} {op} {right.Type}" };
         }
 
-        private object EvalIntegerInfixExpression(string op, Integer left, Integer right)
+        private Object EvalIntegerInfixExpression(string op, Integer left, Integer right)
         {
             switch(op)
             {
@@ -155,13 +184,15 @@ namespace BooInterpreter
                 case "!=":
                     return NativeBoolToBooleanObject(left.Value != right.Value);
                 default:
-                    return m_null;
+                    return new Error { Message = $"unknown operator: {left.Type} {op} {right.Type}" };
             }
         }
 
-        private object EvalIfExpression(IfExpression ifExpression)
+        private Object EvalIfExpression(IfExpression ifExpression)
         {
             var condition = Eval(ifExpression.Condition);
+            if (condition is Error)
+                return condition;
 
             if (IsTruthy(condition))
                 return Eval(ifExpression.Consequence);
@@ -170,8 +201,8 @@ namespace BooInterpreter
             else
                 return m_null;
         }
-        
-        private Boolean NativeBoolToBooleanObject(bool input)
+
+        private Object NativeBoolToBooleanObject(bool input)
         {
             return input ? m_true : m_false;
         }

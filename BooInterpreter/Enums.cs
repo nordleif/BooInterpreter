@@ -12,6 +12,7 @@ namespace BooInterpreter
         Boolean,
         Integer,
         ReturnValue,
+        Error,
     }
 
     public enum Precedence

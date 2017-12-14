@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class Boolean : Object
+    public class Error : Object
     {
-        public Boolean()
+        public Error()
         {
 
         }
 
-        public override ObjectType Type => ObjectType.Boolean;
+        public string Message { get; set; }
 
-        public bool Value { get; set; }
-
+        public override ObjectType Type => ObjectType.Error;
+        
         public override string ToString()
         {
-            return $"{Value}".ToLower();
+            return $"{Message}";
         }
     }
 }

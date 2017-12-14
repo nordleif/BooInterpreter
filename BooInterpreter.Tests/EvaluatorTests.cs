@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using BooInterpreter.Objects;
+using Object = BooInterpreter.Objects.Object;
 using Boolean = BooInterpreter.Objects.Boolean;
 
 namespace BooInterpreter
@@ -152,8 +153,69 @@ namespace BooInterpreter
                 TestIntegerObject(evaluated, test.Value);
             }
         }
-        
-        private object TestEval(string input)
+
+        [Test]
+        public void Evaluator_ErrorHandling()
+        {
+            var tests = new Dictionary<string, string> {
+                    {
+                        "5 + true;",
+                        "type mismatch: Integer + Boolean"
+                    },
+                    {
+                        "5 + true; 5;",
+                        "type mismatch: Integer + Boolean"
+                    },
+                    {
+                        "-true",
+                        "unknown operator: -Boolean"
+                    },
+                    {
+                        "true + false;",
+                        "unknown operator: Boolean + Boolean"
+                    },
+                    {
+                        "5; true + false; 5",
+                        "unknown operator: Boolean + Boolean"
+                    },
+                    {
+                        "if (10 > 1) { true + false; }",
+                        "unknown operator: Boolean + Boolean"
+                    },
+                    {
+                        @"if (10 > 1) {
+                           if (10 > 1) {
+                              return true + false;
+                           }
+                           return 1;
+                        }
+                    ", "unknown operator: Boolean + Boolean"
+                    },
+                    //{
+                    //    "foobar",
+                    //    "identifier not found: foobar"
+                    //},
+                    //{
+                    //    "\"Hello\" - \"World\"",
+                    //    "unknown operator: STRING - STRING"
+                    //},
+                    //{
+                    //    "{\"name\": \"Monkey\"}[fn(x) { x }];",
+                    //    "unusable as hash key: FUNCTION"
+                    //}
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+
+                var error = evaluated as Error;
+                Assert.IsNotNull(error);
+                Assert.AreEqual(test.Value, error.Message);
+            }
+        }
+
+        private Object TestEval(string input)
         {
             var lexer = new Lexer(input);
             var parser = new Parser(lexer);
@@ -169,7 +231,7 @@ namespace BooInterpreter
             Assert.AreEqual(expected, actual.Value);
         }
 
-        private void TestBooleanObject(Object obj, bool expected)
+        private void TestBooleanObject(object obj, bool expected)
         {
             var actual = obj as Boolean;
             Assert.IsNotNull(actual);

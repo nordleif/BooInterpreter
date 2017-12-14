@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BooInterpreter
+namespace BooInterpreter.Objects
 {
-    public abstract class Node
+    public abstract class Object
     {
+        public abstract ObjectType Type { get; }
     }
 }

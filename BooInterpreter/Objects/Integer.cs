@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class Integer
+    public class Integer : Object
     {
         public Integer()
         {
 
         }
 
-        public ObjectType Type => ObjectType.Integer;
+        public override ObjectType Type => ObjectType.Integer;
 
         public Int64 Value { get; set; }
 

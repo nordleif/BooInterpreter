@@ -58,8 +58,10 @@
     <Compile Include="Expressions\PrefixExpression.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Objects\Boolean.cs" />
+    <Compile Include="Objects\Error.cs" />
     <Compile Include="Objects\Integer.cs" />
     <Compile Include="Objects\Null.cs" />
+    <Compile Include="Objects\Object.cs" />
     <Compile Include="Objects\ReturnValue.cs" />
     <Compile Include="Statements\BlockStatement.cs" />
     <Compile Include="Statements\ExpressionStatement.cs" />

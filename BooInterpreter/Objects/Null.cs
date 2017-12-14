@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class Null
+    public class Null : Object
     {
         public Null()
         {
 
         }
 
-        public ObjectType Type => ObjectType.Null;
+        public override ObjectType Type => ObjectType.Null;
 
         public override string ToString()
         {

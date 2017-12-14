@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class ReturnValue
+    public class ReturnValue : Object
     {
         public ReturnValue()
         {
 
         }
 
-        public ObjectType Type => ObjectType.ReturnValue;
+        public override ObjectType Type => ObjectType.ReturnValue;
 
-        public object Value { get; set; }
+        public Object Value { get; set; }
 
         public override string ToString()
         {
