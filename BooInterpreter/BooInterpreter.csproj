@@ -47,6 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Enums.cs" />
+    <Compile Include="Environment.cs" />
     <Compile Include="Evaluator.cs" />
     <Compile Include="Expression.cs" />
     <Compile Include="Expressions\BooleanLiteral.cs" />

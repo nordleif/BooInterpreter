@@ -191,10 +191,10 @@ namespace BooInterpreter
                         }
                     ", "unknown operator: Boolean + Boolean"
                     },
-                    //{
-                    //    "foobar",
-                    //    "identifier not found: foobar"
-                    //},
+                    {
+                        "foobar",
+                        "identifier not found: foobar"
+                    },
                     //{
                     //    "\"Hello\" - \"World\"",
                     //    "unknown operator: STRING - STRING"
@@ -215,19 +215,36 @@ namespace BooInterpreter
             }
         }
 
+        [Test]
+        public void Evaluator_LetStatements()
+        {
+            var tests = new Dictionary<string, long> {
+                {"let a = 5; a;", 5},
+                {"let a = 5 * 5; a;", 25},
+                {"let a = 5; let b = a; b;", 5},
+                {"let a = 5; let b = a; let c = a + b + 5; c;", 15}
+            };
+
+            foreach (var test in tests)
+            {
+                TestIntegerObject(TestEval(test.Key), test.Value);
+            }
+        }
+
         private Object TestEval(string input)
         {
             var lexer = new Lexer(input);
             var parser = new Parser(lexer);
             var program = parser.ParseProgram();
             var evaluator = new Evaluator();
-            return evaluator.Eval(program);
+            var environment = new Environment();
+            return evaluator.Eval(program, environment);
         }
 
         private void TestIntegerObject(object obj, Int64 expected)
         {
             var actual = obj as Integer;
-            Assert.IsNotNull(actual);;
+            Assert.IsNotNull(actual); ;
             Assert.AreEqual(expected, actual.Value);
         }
 

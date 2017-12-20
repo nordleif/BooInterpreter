@@ -24,19 +24,22 @@ namespace BooInterpreter
 
         }
 
-        public Object Eval(Node node)
+        public Object Eval(Node node, Environment environment)
         {
             if (node == null)
                 throw new ArgumentNullException(nameof(node));
 
+            if (environment == null)
+                throw new ArgumentNullException(nameof(environment));
+
             else if (node is Program program)
-                return EvalProgram(program);
+                return EvalProgram(program, environment);
 
             else if (node is BlockStatement block)
-                return EvalBlockStatement(block);
+                return EvalBlockStatement(block, environment);
 
             else if (node is ExpressionStatement statement)
-                return Eval(statement.Expression);
+                return Eval(statement.Expression, environment);
 
             else if (node is IntegerLiteral integer)
                 return new Integer { Value = integer.Value };
@@ -46,7 +49,7 @@ namespace BooInterpreter
 
             else if (node is PrefixExpression prefix)
             {
-                var value = Eval(prefix.Right);
+                var value = Eval(prefix.Right, environment);
                 if (value is Error)
                     return value;
                 return EvalPrefixExpression(prefix.Operator, value);
@@ -54,38 +57,50 @@ namespace BooInterpreter
 
             else if (node is InfixExpression infix)
             {
-                var left = Eval(infix.Left);
+                var left = Eval(infix.Left, environment);
                 if (left is Error)
                     return left;
 
-                var right = Eval(infix.Right);
+                var right = Eval(infix.Right, environment);
                 if (right is Error)
                     return right;
 
                 return EvalInfixExpression(infix.Operator, left, right);
             }
-            
+
             else if (node is IfExpression ifExpression)
-                return EvalIfExpression(ifExpression);
+                return EvalIfExpression(ifExpression, environment);
 
             else if (node is ReturnStatement returnStatement)
             {
-                var value = Eval(returnStatement.ReturnValue);
+                var value = Eval(returnStatement.ReturnValue, environment);
                 if (value is Error)
                     return value;
                 return new ReturnValue { Value = value };
             }
 
+            else if (node is LetStatement let)
+            {
+                var value = Eval(let.Value, environment);
+                if (value is Error)
+                    return value;
+
+                environment.Set(let.Name.Value, value);
+            }
+
+            else if (node is Identifier identifier)
+                return EvalIdentifier(identifier, environment);
+
             return m_null;
         }
 
-        private Object EvalProgram(Program program)
+        private Object EvalProgram(Program program, Environment environment)
         {
             Object result = null;
 
             foreach (var statement in program.Statements)
             {
-                result = Eval(statement);
+                result = Eval(statement, environment);
 
                 if (result is ReturnValue returnValue)
                     return returnValue.Value;
@@ -96,13 +111,13 @@ namespace BooInterpreter
             return result;
         }
 
-        private Object EvalBlockStatement(BlockStatement block)
+        private Object EvalBlockStatement(BlockStatement block, Environment environment)
         {
             Object result = null;
 
             foreach(var statement in block.Statements)
             {
-                result = Eval(statement);
+                result = Eval(statement, environment);
                 if (result is ReturnValue returnValue)
                     return returnValue;
                 else if (result is Error error)
@@ -188,16 +203,16 @@ namespace BooInterpreter
             }
         }
 
-        private Object EvalIfExpression(IfExpression ifExpression)
+        private Object EvalIfExpression(IfExpression ifExpression, Environment environment)
         {
-            var condition = Eval(ifExpression.Condition);
+            var condition = Eval(ifExpression.Condition, environment);
             if (condition is Error)
                 return condition;
 
             if (IsTruthy(condition))
-                return Eval(ifExpression.Consequence);
+                return Eval(ifExpression.Consequence, environment);
             else if (ifExpression.Alternative != null)
-                return Eval(ifExpression.Alternative);
+                return Eval(ifExpression.Alternative, environment);
             else
                 return m_null;
         }
@@ -205,6 +220,15 @@ namespace BooInterpreter
         private Object NativeBoolToBooleanObject(bool input)
         {
             return input ? m_true : m_false;
+        }
+
+        private Object EvalIdentifier(Identifier identifier, Environment environment)
+        {
+            var value = environment.Get(identifier.Value);
+            if (value == null)
+                return new Error { Message = $"identifier not found: {identifier.Value}" };
+
+            return value;
         }
 
         private bool IsTruthy(object obj)

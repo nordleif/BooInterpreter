@@ -59,6 +59,8 @@ namespace BooInterpreter
         static void Main(string[] args)
         {
             var prompt = ">>> ";
+            var environment = new Environment();
+
             while (true)
             {
                 Console.Write(prompt);
@@ -77,7 +79,7 @@ namespace BooInterpreter
                 }
 
                 var evaluator = new Evaluator();
-                var evaluated = evaluator.Eval(program);
+                var evaluated = evaluator.Eval(program, environment);
 
                 if (evaluated != null)
                     Console.WriteLine(evaluated);
