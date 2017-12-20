@@ -91,6 +91,27 @@ namespace BooInterpreter
             else if (node is Identifier identifier)
                 return EvalIdentifier(identifier, environment);
 
+            else if (node is FunctionLiteral functionLiteral)
+            {
+                var parameters = functionLiteral.Parameters;
+                var body = functionLiteral.Body;
+
+                return new Function { Parameters = parameters, Body = body, Environment = environment };
+            }
+
+            else if (node is CallExpression callExpression)
+            {
+                var function = Eval(callExpression.Function, environment);
+                if (function is Error)
+                    return function;
+
+                var arguments = EvalExpressions(callExpression.Arguments, environment);
+                if (arguments.Length == 1 && arguments[0] is Error)
+                    return arguments[0];
+
+                return ApplyFunction(function, arguments);
+            }
+
             return m_null;
         }
 
@@ -217,10 +238,55 @@ namespace BooInterpreter
                 return m_null;
         }
 
+        private Object[] EvalExpressions(Expression[] expressions, Environment environment)
+        {
+            var result = new List<Object>();
+
+            foreach(var expression in expressions)
+            {
+                var evaluated = Eval(expression, environment);
+                if (evaluated is Error)
+                    return new Object[] { evaluated };
+
+                result.Add(evaluated);
+            }
+
+            return result.ToArray();
+        }
+
         private Object NativeBoolToBooleanObject(bool input)
         {
             return input ? m_true : m_false;
         }
+        
+        private Object ApplyFunction(Object obj, Object[] arguments)
+        {
+            if (obj is Function function)
+            {
+                var extendedEnv = ExtendFunctionEnv(function, arguments.ToArray());
+                var evaluated = Eval(function.Body, extendedEnv);
+                return UnwrapReturnValue(evaluated);
+            }
+
+            return new Error { Message = $"not a function: {obj.Type}" };
+        }
+
+        private Environment ExtendFunctionEnv(Function function, Object[] arguments)
+        {
+            var environment = new Environment(function.Environment);
+            for (var i = 0; i < function.Parameters.Length; i++)
+                environment.Set(function.Parameters[i].Value, arguments[i]);
+            return environment;
+        }
+
+        private Object UnwrapReturnValue(Object obj)
+        {
+            if (obj is ReturnValue returnValue)
+                return returnValue.Value;
+            else
+                return obj;
+        }
+
 
         private Object EvalIdentifier(Identifier identifier, Environment environment)
         {

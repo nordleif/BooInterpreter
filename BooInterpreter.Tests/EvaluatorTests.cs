@@ -231,6 +231,53 @@ namespace BooInterpreter
             }
         }
 
+        [Test]
+        public void Evaluator_FunctionObject()
+        {
+            var input = "fn(x) { x + 2; };";
+            var evaluated = TestEval(input);
+            var function = evaluated as Function;
+
+            Assert.IsNotNull(function);
+            Assert.AreEqual("x", function.Parameters[0].ToString());
+            Assert.AreEqual("(x + 2)", function.Body.ToString());
+        }
+
+        [Test]
+        public void Evaluator_FunctionApplication()
+        {
+            var tests = new Dictionary<string, long>
+            {
+                {"let identity = fn(x) { x; }; identity(5);", 5},
+                {"let identity = fn(x) { return x; }; identity(5);", 5},
+                {"let double = fn(x) { x * 2; }; double(5);", 10},
+                {"let add = fn(x, y) { x + y; }; add(5, 5);", 10},
+                {"let add = fn(x, y) { x + y; }; add(5 + 5, add(5, 5));", 20},
+                {"fn(x) { x; }(5)", 5}
+            };
+
+            foreach (var test in tests)
+            {
+                TestIntegerObject(TestEval(test.Key), test.Value);
+            }
+        }
+
+        [Test]
+        public void Evaluator_Closures()
+        {
+            var input = @"let newAdder = fn(x) {
+                             fn(y) { x + y };
+                          };
+                          
+                          let addTwo = newAdder(2);
+                          addTwo(2);
+
+                          ";
+
+            var evaluated = TestEval(input);
+            TestIntegerObject(evaluated, 4);
+        }
+
         private Object TestEval(string input)
         {
             var lexer = new Lexer(input);
