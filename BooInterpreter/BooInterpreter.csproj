@@ -60,6 +60,7 @@
     <Compile Include="Expressions\StringLiteral.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Objects\Boolean.cs" />
+    <Compile Include="Objects\Builtin.cs" />
     <Compile Include="Objects\Error.cs" />
     <Compile Include="Objects\Function.cs" />
     <Compile Include="Objects\Integer.cs" />

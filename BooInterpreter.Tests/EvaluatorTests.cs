@@ -291,7 +291,7 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void TestStringConcatenation()
+        public void Evaluator_StringConcatenation()
         {
             var input = "\"Hello\" + \" \" + \"World!\"";
             var evaluated = TestEval(input);
@@ -299,6 +299,46 @@ namespace BooInterpreter
 
             Assert.IsNotNull(str);
             Assert.AreEqual("Hello World!", str.Value);
+        }
+
+        [Test]
+        public void Evaluator_BuiltinFunctions()
+        {
+            var tests = new Dictionary<string, object>
+            {
+                {"len(\"\")", 0L},
+                {"len(\"four\")", 4L},
+                {"len(\"hello world\")", 11L},
+                {"len(1)", "argument to 'len' not supported, got Integer"},
+                {"len(\"one\", \"two\")", "wrong number of arguments. got=2, want=1"},
+                //{"len([1, 2, 3])", 3},
+                //{"len([])", 0},
+                //{"first([1, 2, 3])", 1},
+                //{"first([])", null},
+                //{"first(1)", "argument to `first` must be ARRAY, got INTEGER"},
+                //{"last([1, 2, 3])", 3},
+                //{"last([])", null},
+                //{"last(1)", "argument to `last` must be ARRAY, got INTEGER"},
+                //{"rest([1, 2, 3])", new []{2, 3}},
+                //{"rest([])", null},
+                //{"push([], 1)", new [] {1}},
+                //{"push(1, 1)", "argument to `push` must be ARRAY, got INTEGER"}
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+                if (test.Value is Int64 expected)
+                {
+                    TestIntegerObject(evaluated, expected);
+                }
+                if (test.Value is string)
+                {
+                    var error = evaluated as Error;
+                    Assert.IsNotNull(error);
+                    Assert.AreEqual(test.Value, error.Message);
+                }
+            }
         }
 
         private Object TestEval(string input)

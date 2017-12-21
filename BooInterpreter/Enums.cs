@@ -15,6 +15,7 @@ namespace BooInterpreter
         Error,
         Function,
         String,
+        Builtin,
     }
 
     public enum Precedence

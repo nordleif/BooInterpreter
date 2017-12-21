@@ -13,16 +13,34 @@ namespace BooInterpreter
     public class Evaluator
     {
         #region Static Members
-
+        
         private static readonly Null m_null = new Null { };
         private static readonly Boolean m_false = new Boolean { Value = false };
         private static readonly Boolean m_true = new Boolean { Value = true };
 
         #endregion
 
+        private readonly Dictionary<string, Builtin> m_builtins;
+
         public Evaluator()
         {
-
+            m_builtins = new Dictionary<string, Builtin>()
+            {
+                {
+                    "len", new Builtin
+                    {
+                        Function = args => 
+                        {
+                            if (args.Length != 1)
+                                return new Error { Message = $"wrong number of arguments. got={args.Length}, want=1" };
+                            else if (args[0] is String str)
+                                return new Integer { Value = str.Value.Length };
+                            else
+                                return new Error { Message = $"argument to 'len' not supported, got {args[0].Type}" };
+                        }
+                    }
+                },
+            };
         }
 
         public Object Eval(Node node, Environment environment)
@@ -284,8 +302,14 @@ namespace BooInterpreter
                 var evaluated = Eval(function.Body, extendedEnv);
                 return UnwrapReturnValue(evaluated);
             }
-
-            return new Error { Message = $"not a function: {obj.Type}" };
+            else if (obj is Builtin builtin)
+            {
+                return builtin.Function.Invoke(arguments);
+            }
+            else
+            {
+                return new Error { Message = $"not a function: {obj.Type}" };
+            }
         }
 
         private Environment ExtendFunctionEnv(Function function, Object[] arguments)
@@ -304,14 +328,16 @@ namespace BooInterpreter
                 return obj;
         }
 
-
         private Object EvalIdentifier(Identifier identifier, Environment environment)
         {
             var value = environment.Get(identifier.Value);
-            if (value == null)
-                return new Error { Message = $"identifier not found: {identifier.Value}" };
+            if (value != null)
+                return value;
 
-            return value;
+            if (m_builtins.TryGetValue(identifier.Value, out var builtin))
+                return builtin;
+
+            return new Error { Message = $"identifier not found: {identifier.Value}" };
         }
 
         private bool IsTruthy(object obj)
