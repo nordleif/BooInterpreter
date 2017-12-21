@@ -187,11 +187,13 @@ namespace BooInterpreter
         private Object EvalInfixExpression(string op, Object left, Object right)
         {
             if (left.Type != right.Type)
-                return new Error { Message = $"type mismatch: {left.Type} {op} {right.Type}" }; 
+                return new Error { Message = $"type mismatch: {left.Type} {op} {right.Type}" };
 
             if (left is Integer && right is Integer)
                 return EvalIntegerInfixExpression(op, (Integer)left, (Integer)right);
-         
+            else if (left is String && right is String)
+                return EvalStringInfixExpression(op, (String)left, (String)right);
+
             switch(op)
             {
                 case "==":
@@ -223,6 +225,17 @@ namespace BooInterpreter
                     return NativeBoolToBooleanObject(left.Value == right.Value);
                 case "!=":
                     return NativeBoolToBooleanObject(left.Value != right.Value);
+                default:
+                    return new Error { Message = $"unknown operator: {left.Type} {op} {right.Type}" };
+            }
+        }
+
+        private Object EvalStringInfixExpression(string op, String left, String right)
+        {
+            switch (op)
+            {
+                case "+":
+                    return new String { Value = left.Value + right.Value };
                 default:
                     return new Error { Message = $"unknown operator: {left.Type} {op} {right.Type}" };
             }

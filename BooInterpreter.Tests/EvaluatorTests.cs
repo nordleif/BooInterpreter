@@ -196,10 +196,10 @@ namespace BooInterpreter
                         "foobar",
                         "identifier not found: foobar"
                     },
-                    //{
-                    //    "\"Hello\" - \"World\"",
-                    //    "unknown operator: STRING - STRING"
-                    //},
+                    {
+                        "\"Hello\" - \"World\"",
+                        "unknown operator: String - String"
+                    },
                     //{
                     //    "{\"name\": \"Monkey\"}[fn(x) { x }];",
                     //    "unusable as hash key: FUNCTION"
@@ -283,6 +283,17 @@ namespace BooInterpreter
         public void Evaluator_StringLiteral()
         {
             var input = "\"Hello World!\"";
+            var evaluated = TestEval(input);
+            var str = evaluated as String;
+
+            Assert.IsNotNull(str);
+            Assert.AreEqual("Hello World!", str.Value);
+        }
+
+        [Test]
+        public void TestStringConcatenation()
+        {
+            var input = "\"Hello\" + \" \" + \"World!\"";
             var evaluated = TestEval(input);
             var str = evaluated as String;
 
