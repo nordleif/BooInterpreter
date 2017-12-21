@@ -97,6 +97,12 @@ namespace BooInterpreter
                 case '}':
                     token = new Token(TokenType.RBRACE, m_ch);
                     break;
+                case '[':
+                    token = new Token(TokenType.LBRACKET, m_ch);
+                    break;
+                case ']':
+                    token = new Token(TokenType.RBRACKET, m_ch);
+                    break;
                 case '"':
                     token = new Token(TokenType.STRING, ReadString());
                     break;

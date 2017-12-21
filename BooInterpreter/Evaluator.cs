@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BooInterpreter.Objects;
+using Array = BooInterpreter.Objects.Array;
 using Boolean = BooInterpreter.Objects.Boolean;
 using Object = BooInterpreter.Objects.Object;
 using String = BooInterpreter.Objects.String;
@@ -133,6 +134,28 @@ namespace BooInterpreter
 
             else if (node is StringLiteral str)
                 return new String { Value = str.Value };
+
+            else if (node is ArrayLiteral array)
+            {
+                var elements = EvalExpressions(array.Elements, environment);
+                if (elements.Length == 1 && elements[0] is Error)
+                    return elements[0];
+
+                return new Array { Elements = elements };
+            }
+
+            else if (node is IndexExpression indexExpression)
+            {
+                var left = Eval(indexExpression.Left, environment);
+                if (left is Error)
+                    return left;
+
+                var index = Eval(indexExpression.Index, environment);
+                if (index is Error)
+                    return index;
+
+                return EvalIndexExpression(left, index);
+            }
 
             return m_null;
         }
@@ -287,6 +310,22 @@ namespace BooInterpreter
             }
 
             return result.ToArray();
+        }
+
+        private Object EvalIndexExpression(Object left, Object index)
+        {
+            if (left is Array && index is Integer)
+                return EvalArrayIndexExpression((Array)left, (Integer)index);
+            
+            return new Error { Message = $"index operator not supported: {left.Type}" };
+        }
+
+        private Object EvalArrayIndexExpression(Array array, Integer index)
+        {
+            if (index.Value < 0 || index.Value >= array.Elements.Length)
+                return m_null;
+            else
+                return array.Elements[index.Value];
         }
 
         private Object NativeBoolToBooleanObject(bool input)

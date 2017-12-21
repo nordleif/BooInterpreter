@@ -33,6 +33,7 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.IF, ParseIfExpression);
             m_prefixParse.Add(TokenType.FUNCTION, ParseFunctionLiteral);
             m_prefixParse.Add(TokenType.STRING, ParseStringLiteral);
+            m_prefixParse.Add(TokenType.LBRACKET, ParseArrayLiteral);
             
             m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
@@ -44,6 +45,7 @@ namespace BooInterpreter
             m_infixParse.Add(TokenType.LT, ParseInfixExpression);
             m_infixParse.Add(TokenType.GT, ParseInfixExpression);
             m_infixParse.Add(TokenType.LPAREN, ParseCallExpression);
+            m_infixParse.Add(TokenType.LBRACKET, ParseIndexExpression);
 
             m_precedences = new Dictionary<TokenType, Precedence>();
             m_precedences.Add(TokenType.EQ, Precedence.Equals);
@@ -55,6 +57,7 @@ namespace BooInterpreter
             m_precedences.Add(TokenType.SLASH, Precedence.Product);
             m_precedences.Add(TokenType.ASTERISK, Precedence.Product);
             m_precedences.Add(TokenType.LPAREN, Precedence.Call);
+            m_precedences.Add(TokenType.LBRACKET, Precedence.Index);
 
             NextToken();
             NextToken();
@@ -333,36 +336,9 @@ namespace BooInterpreter
         {
             var expression = new CallExpression { Token = CurrentToken };
             expression.Function = function;
-            expression.Arguments = ParseCallArguments();
+            expression.Arguments = ParseExpressionList(TokenType.RPAREN);
 
             return expression;
-        }
-
-        private Expression[] ParseCallArguments()
-        {
-            var arguments = new List<Expression>();
-
-            if (PeekTokenIs(TokenType.RPAREN))
-            {
-                NextToken();
-                return arguments.ToArray();
-            }
-
-            NextToken();
-
-            arguments.Add(ParseExpression(Precedence.Lowest));
-
-            while(PeekTokenIs(TokenType.COMMA))
-            {
-                NextToken();
-                NextToken();
-                arguments.Add(ParseExpression(Precedence.Lowest));
-            }
-
-            if (!ExpectPeek(TokenType.RPAREN))
-                return null;
-
-            return arguments.ToArray();
         }
 
         private StringLiteral ParseStringLiteral()
@@ -370,6 +346,55 @@ namespace BooInterpreter
             var literal = new StringLiteral { Token = CurrentToken };
             literal.Value = CurrentToken.Literal;
             return literal;
+        }
+
+        private ArrayLiteral ParseArrayLiteral()
+        {
+            var literal = new ArrayLiteral { Token = CurrentToken };
+            literal.Elements = ParseExpressionList(TokenType.RBRACKET);
+            return literal;
+        }
+
+        private Expression[] ParseExpressionList(TokenType end)
+        {
+            var list = new List<Expression>();
+
+            if (PeekTokenIs(end))
+            {
+                NextToken();
+                return list.ToArray();
+            }
+
+            NextToken();
+
+            list.Add(ParseExpression(Precedence.Lowest));
+
+            while(PeekTokenIs(TokenType.COMMA))
+            {
+                NextToken();
+                NextToken();
+                list.Add(ParseExpression(Precedence.Lowest));
+            }
+
+            if (!ExpectPeek(end))
+                return null;
+            
+            return list.ToArray();
+        }
+
+        private IndexExpression ParseIndexExpression(Expression left)
+        {
+            var expression = new IndexExpression { Token = CurrentToken };
+            expression.Left = left;
+
+            NextToken();
+
+            expression.Index = ParseExpression(Precedence.Lowest);
+
+            if (!ExpectPeek(TokenType.RBRACKET))
+                return null;
+
+            return expression;
         }
 
         private Precedence CurrentPrecedence()

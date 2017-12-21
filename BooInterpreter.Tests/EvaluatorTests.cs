@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using BooInterpreter.Objects;
+using Array = BooInterpreter.Objects.Array;
 using Boolean = BooInterpreter.Objects.Boolean;
 using Object = BooInterpreter.Objects.Object;
 using String = BooInterpreter.Objects.String;
@@ -338,6 +339,46 @@ namespace BooInterpreter
                     Assert.IsNotNull(error);
                     Assert.AreEqual(test.Value, error.Message);
                 }
+            }
+        }
+
+        [Test]
+        public void Evaluator_ArrayLiterals()
+        {
+            var input = "[1, 2 * 2, 3 + 3]";
+            var evaluated = TestEval(input);
+            var array = evaluated as Array;
+
+            Assert.IsNotNull(array);
+            Assert.AreEqual(3, array.Elements.Length);
+            TestIntegerObject(array.Elements[0], 1L);
+            TestIntegerObject(array.Elements[1], 4L);
+            TestIntegerObject(array.Elements[2], 6L);
+        }
+
+        [Test]
+        public void Evaluator_ArrayIndexExpressions()
+        {
+            var tests = new Dictionary<string, long?> {
+                { "[1, 2, 3][0]", 1 },
+                { "[1, 2, 3][1]", 2 },
+                { "[1, 2, 3][2]", 3 },
+                { "let i = 0; [1][i];", 1 },
+                { "[1, 2, 3][1 + 1];", 3 },
+                { "let myArray = [1, 2, 3]; myArray[2];", 3 },
+                { "let myArray = [1, 2, 3]; myArray[0] + myArray[1] + myArray[2];", 6 },
+                { "let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", 2 },
+                { "[1, 2, 3][3]", null },
+                { "[1, 2, 3][-1]", null }
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+                if (test.Value.HasValue)
+                    TestIntegerObject(evaluated, test.Value.Value);
+                else
+                    TestNullObject(evaluated);
             }
         }
 

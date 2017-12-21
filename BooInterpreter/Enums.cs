@@ -16,6 +16,7 @@ namespace BooInterpreter
         Function,
         String,
         Builtin,
+        Array,
     }
 
     public enum Precedence
@@ -59,6 +60,8 @@ namespace BooInterpreter
         RPAREN,
         LBRACE,
         RBRACE,
+        LBRACKET,
+        RBRACKET,
 
         // Keywords
         FUNCTION,

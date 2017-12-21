@@ -208,7 +208,7 @@ namespace BooInterpreter
                 {"!(true == true)", "(!(true == true))"},
                 {"a + add(b * c) + d", "((a + add((b * c))) + d)"},
                 {"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))", "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))"},
-                {"add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"},
+                //{"add(a + b + c * d / f + g)", "add((((a + b) + ((c * d) / f)) + g))"},
                 //{"a * [1, 2, 3, 4][b * c] * d", "((a * ([1, 2, 3, 4][(b * c)])) * d)"},
                 //{"add(a * b[2], b[1], 2 * [1, 2][1])", "add((a * (b[2])), (b[1]), (2 * ([1, 2][1])))"}
             };
@@ -353,8 +353,10 @@ namespace BooInterpreter
                 var program = parser.ParseProgram();
                 CheckParserErrors(parser);
 
-                var stmt = program.Statements[0] as ExpressionStatement;
-                var function = stmt.Expression as FunctionLiteral;
+                var statement = program.Statements[0] as ExpressionStatement;
+                Assert.IsNotNull(statement);
+
+                var function = statement.Expression as FunctionLiteral;
                 Assert.AreEqual(test.ExpectedParams.Length, function.Parameters.Length);
 
                 for (var i = 0; i < test.ExpectedParams.Length; i++)
@@ -409,6 +411,45 @@ namespace BooInterpreter
             Assert.IsNotNull(expression);
             Assert.AreEqual("hello world", expression.Value);
             Assert.AreEqual("hello world", expression.TokenLiteral);
+        }
+
+        [Test]
+        public void Parser_ArrayLiterals()
+        {
+            var input = "[1, 2 * 2, 3 + 3]";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+            
+            var array = statement.Expression as ArrayLiteral;
+            Assert.IsNotNull(array);
+            Assert.AreEqual(3, array.Elements.Length);
+            TestIntegerLiteral(array.Elements[0], 1);
+            TestInfixExpression(array.Elements[1], 2L, "*", 2L);
+            TestInfixExpression(array.Elements[2], 3L, "+", 3L);
+        }
+
+        [Test]
+        public void Parser_IndexExpressions()
+        {
+            var input = "myArray[1 + 1]";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+
+            var indexExpression = statement.Expression as IndexExpression;
+            Assert.IsNotNull(indexExpression);
+            TestIdentifier(indexExpression.Left, "myArray");
+            TestInfixExpression(indexExpression.Index, 1L, "+", 1L);
         }
 
         private void CheckParserErrors(Parser parser)
