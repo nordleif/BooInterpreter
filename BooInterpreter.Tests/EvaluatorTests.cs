@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using BooInterpreter.Objects;
-using Object = BooInterpreter.Objects.Object;
 using Boolean = BooInterpreter.Objects.Boolean;
+using Object = BooInterpreter.Objects.Object;
+using String = BooInterpreter.Objects.String;
 
 namespace BooInterpreter
 {
@@ -276,6 +277,17 @@ namespace BooInterpreter
 
             var evaluated = TestEval(input);
             TestIntegerObject(evaluated, 4);
+        }
+
+        [Test]
+        public void Evaluator_StringLiteral()
+        {
+            var input = "\"Hello World!\"";
+            var evaluated = TestEval(input);
+            var str = evaluated as String;
+
+            Assert.IsNotNull(str);
+            Assert.AreEqual("Hello World!", str.Value);
         }
 
         private Object TestEval(string input)

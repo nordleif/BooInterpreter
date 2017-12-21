@@ -32,7 +32,9 @@ namespace BooInterpreter
                           
                           10 == 10;
                           10 != 9;
-                          
+                          ""foobar""
+                          ""foo bar""
+
                           "; 
         
             var tests = new(TokenType expectedType, string expectedLiteral)[] { 
@@ -118,6 +120,9 @@ namespace BooInterpreter
                 (expectedType: TokenType.INT, expectedLiteral: "9"),
                 (expectedType: TokenType.SEMICOLON, expectedLiteral: ";"),
                 
+                (expectedType: TokenType.STRING, expectedLiteral: "foobar"),
+                (expectedType: TokenType.STRING, expectedLiteral: "foo bar"),
+
                 (expectedType: TokenType.EOF, expectedLiteral: ""),
 
             };
@@ -127,8 +132,8 @@ namespace BooInterpreter
             foreach(var test in tests)
             {
                 var token = lexer.NextToken();
-                Assert.AreEqual(test.expectedLiteral, token.Literal);
                 Assert.AreEqual(test.expectedType, token.Type);
+                Assert.AreEqual(test.expectedLiteral, token.Literal);
             }            
         }
     }

@@ -4,8 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BooInterpreter.Objects;
-using Object = BooInterpreter.Objects.Object;
 using Boolean = BooInterpreter.Objects.Boolean;
+using Object = BooInterpreter.Objects.Object;
+using String = BooInterpreter.Objects.String;
 
 namespace BooInterpreter
 {
@@ -111,6 +112,9 @@ namespace BooInterpreter
 
                 return ApplyFunction(function, arguments);
             }
+
+            else if (node is StringLiteral str)
+                return new String { Value = str.Value };
 
             return m_null;
         }

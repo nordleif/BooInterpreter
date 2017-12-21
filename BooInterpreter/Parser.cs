@@ -32,6 +32,7 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.LPAREN, ParseGroupedExpression);
             m_prefixParse.Add(TokenType.IF, ParseIfExpression);
             m_prefixParse.Add(TokenType.FUNCTION, ParseFunctionLiteral);
+            m_prefixParse.Add(TokenType.STRING, ParseStringLiteral);
             
             m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
@@ -362,6 +363,13 @@ namespace BooInterpreter
                 return null;
 
             return arguments.ToArray();
+        }
+
+        private StringLiteral ParseStringLiteral()
+        {
+            var literal = new StringLiteral { Token = CurrentToken };
+            literal.Value = CurrentToken.Literal;
+            return literal;
         }
 
         private Precedence CurrentPrecedence()

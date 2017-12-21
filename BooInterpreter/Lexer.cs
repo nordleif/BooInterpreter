@@ -97,7 +97,9 @@ namespace BooInterpreter
                 case '}':
                     token = new Token(TokenType.RBRACE, m_ch);
                     break;
-
+                case '"':
+                    token = new Token(TokenType.STRING, ReadString());
+                    break;
                 case (char)0:
                     token = new Token(TokenType.EOF, "");
                     break;
@@ -163,6 +165,18 @@ namespace BooInterpreter
             var position = m_position;
             while (IsDigit(m_ch))
                 ReadChar();
+            return m_input.Substring(position, m_position - position);
+        }
+
+        private string ReadString()
+        {
+            var position = m_position + 1;
+            while(true)
+            {
+                ReadChar();
+                if (m_ch == '"' || m_ch == (char)0)
+                    break;
+            }
             return m_input.Substring(position, m_position - position);
         }
 

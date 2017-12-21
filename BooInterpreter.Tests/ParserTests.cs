@@ -390,6 +390,27 @@ namespace BooInterpreter
             TestInfixExpression(expression.Arguments[2], 4L, "+", 5L);
         }
 
+        [Test]
+        public void Parser_StringLiteralExpression()
+        {
+            var input = "\"hello world\";";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements.First() as ExpressionStatement;
+            Assert.IsNotNull(statement);
+            Assert.IsNotNull(statement.Expression);
+
+            var expression = statement.Expression as StringLiteral;
+            Assert.IsNotNull(expression);
+            Assert.AreEqual("hello world", expression.Value);
+            Assert.AreEqual("hello world", expression.TokenLiteral);
+        }
+
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");

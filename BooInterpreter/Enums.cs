@@ -14,6 +14,7 @@ namespace BooInterpreter
         ReturnValue,
         Error,
         Function,
+        String,
     }
 
     public enum Precedence
@@ -36,6 +37,7 @@ namespace BooInterpreter
         // Identifiers + literals
         IDENT, // add, foobar, x, y, ...
         INT, // 1343456
+        STRING, // "foobar"
 
         // Operators
         ASSIGN,
