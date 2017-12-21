@@ -65,8 +65,9 @@ namespace BooInterpreter
             {
                 Console.Write(prompt);
                 var text = Console.ReadLine();
+
                 if (string.IsNullOrWhiteSpace(text))
-                    return;
+                    continue;
 
                 var lexer = new Lexer(text);
                 var parser = new Parser(lexer);
