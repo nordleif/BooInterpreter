@@ -61,17 +61,60 @@ namespace BooInterpreter
             var prompt = ">>> ";
             var environment = new Environment();
 
+
+            var text = @"
+                        let map = fn(arr, f) {
+                            let iter = fn(arr, accumulated) {
+                                if (len(arr) == 0) {
+                                    accumulated
+                                } else {
+                                    iter(rest(arr), push(accumulated, f(first(arr))))
+                                }
+                            }
+
+                            iter(arr, []);
+                        };
+
+                        let a = [ 1, 2, 3, 4 ];
+                        let double = fn(x) { x * 2 };
+
+
+                        let reduce = fn(arr, initial, f) {
+                            let iter = fn(arr, result) {
+                                if (len(arr) == 0) {
+                                    result
+                                } else {
+                                    iter(rest(arr), f(result, first(arr)));
+                                }
+                            };
+
+                            iter(arr, initial);
+                        };
+
+                        let sum = fn(arr) {
+                            reduce(arr, 0, fn(initial, el) { initial + el });
+                        };
+
+
+            ";
+
+            var lexer = new Lexer(text);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            var evaluator = new Evaluator();
+            var evaluated = evaluator.Eval(program, environment);
+
             while (true)
             {
                 Console.Write(prompt);
-                var text = Console.ReadLine();
+                text = Console.ReadLine();
 
                 if (string.IsNullOrWhiteSpace(text))
                     continue;
 
-                var lexer = new Lexer(text);
-                var parser = new Parser(lexer);
-                var program = parser.ParseProgram();
+                lexer = new Lexer(text);
+                parser = new Parser(lexer);
+                program = parser.ParseProgram();
                 
                 if (parser.Errors.Length > 0)
                 {
@@ -79,8 +122,8 @@ namespace BooInterpreter
                     continue;
                 }
 
-                var evaluator = new Evaluator();
-                var evaluated = evaluator.Eval(program, environment);
+                evaluator = new Evaluator();
+                evaluated = evaluator.Eval(program, environment);
 
                 if (evaluated != null)
                     Console.WriteLine(evaluated);

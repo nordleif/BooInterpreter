@@ -36,11 +36,94 @@ namespace BooInterpreter
                                 return new Error { Message = $"wrong number of arguments. got={args.Length}, want=1" };
                             else if (args[0] is String str)
                                 return new Integer { Value = str.Value.Length };
+                            else if (args[0] is Array array)
+                                return new Integer { Value = array.Elements.Length };
                             else
                                 return new Error { Message = $"argument to 'len' not supported, got {args[0].Type}" };
                         }
                     }
                 },
+                {
+                    "first", new Builtin
+                    {
+                        Function = args =>
+                        {
+                            if (args.Length != 1)
+                                return new Error { Message = $"wrong number of arguments. got={args.Length}, want=1" };
+
+                            var array = args[0] as Array;
+                            if (array == null)
+                                return new Error { Message = $"argument to 'first' must be ARRAY, got {args[0].Type}" };
+
+                            if (array.Elements == null || !array.Elements.Any())
+                                return m_null;
+
+                            return array.Elements.First();
+                        }
+                    }
+                },
+                {
+                    "last", new Builtin
+                    {
+                        Function = args =>
+                        {
+                            if (args.Length != 1)
+                                return new Error { Message = $"wrong number of arguments. got={args.Length}, want=1" };
+
+                            var array = args[0] as Array;
+                            if (array == null)
+                                return new Error { Message = $"argument to 'last' must be ARRAY, got {args[0].Type}" };
+
+                            if (array.Elements == null || !array.Elements.Any())
+                                return m_null;
+
+                            return array.Elements.Last();
+                        }
+                    }
+                },
+                {
+                    "rest", new Builtin
+                    {
+                        Function = args =>
+                        {
+                            if (args.Length != 1)
+                                return new Error { Message = $"wrong number of arguments. got={args.Length}, want=1" };
+
+                            var array = args[0] as Array;
+                            if (array == null)
+                                return new Error { Message = $"argument to 'first' must be ARRAY, got {args[0].Type}" };
+
+                            if (array.Elements == null || !array.Elements.Any())
+                                return m_null;
+
+                            return new Array { Elements = array.Elements.Skip(1).ToArray() };
+                        }
+                    }
+                },
+                {
+                    "push", new Builtin
+                    {
+                        Function = args =>
+                        {
+                            if (args.Length != 2)
+                                return new Error { Message = $"wrong number of arguments. got={args.Length}, want=2" };
+
+                            var array = args[0] as Array;
+                            if (array == null)
+                                return new Error { Message = $"argument to 'push' must be ARRAY, got {args[0].Type}" };
+
+                            var list = array.Elements?.ToList();
+                            if (list == null)
+                                list = new List<Object>();
+
+                            list.Add(args[1]);
+                            
+                            return new Array { Elements = list.ToArray() };
+                        }
+                    }
+                },
+
+
             };
         }
 
