@@ -122,8 +122,17 @@ namespace BooInterpreter
                         }
                     }
                 },
-
-
+                {
+                    "puts", new Builtin
+                    {
+                        Function = args =>
+                        {
+                            foreach (var arg in args)
+                                Console.WriteLine(arg);
+                            return m_null;
+                        }
+                    }
+                },
             };
         }
 
