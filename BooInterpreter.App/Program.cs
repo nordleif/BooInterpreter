@@ -56,13 +56,23 @@ namespace BooInterpreter
 
         #endregion
 
+        static Environment m_environment;
+        
         static void Main(string[] args)
         {
-            var prompt = ">>> ";
-            var environment = new Environment();
+            m_environment = new Environment();
 
+            Initialize();
 
-            var text = @"
+            if (args.Any())
+                EvalFile(args[0]);
+            else
+                ReadEvalPrintLoop();
+        }
+
+        static void Initialize()
+        {
+            var input = @"
                         let map = fn(arr, f) {
                             let iter = fn(arr, accumulated) {
                                 if (len(arr) == 0) {
@@ -98,32 +108,67 @@ namespace BooInterpreter
 
             ";
 
-            var lexer = new Lexer(text);
+            var lexer = new Lexer(input);
             var parser = new Parser(lexer);
             var program = parser.ParseProgram();
             var evaluator = new Evaluator();
-            var evaluated = evaluator.Eval(program, environment);
+            var evaluated = evaluator.Eval(program, m_environment);
+        }
+        
+        static void EvalFile(string fileName)
+        {
+            if (string.IsNullOrWhiteSpace(fileName))
+                throw new ArgumentNullException(nameof(fileName));
+
+            if (!File.Exists(fileName))
+            {
+                Console.WriteLine($"Could not find file '{fileName}'");
+                return;
+            }
+
+            var input = File.ReadAllText(fileName);
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+
+            if (parser.Errors.Length > 0)
+            {
+                Console.WriteLine(string.Join("\r\n", parser.Errors));
+                return;
+            }
+
+            var evaluator = new Evaluator();
+            var evaluated = evaluator.Eval(program, m_environment);
+
+            if (evaluated != null)
+                Console.WriteLine(evaluated);
+        }
+
+        static void ReadEvalPrintLoop()
+        {
+            var prompt = ">>> ";
 
             while (true)
             {
                 Console.Write(prompt);
-                text = Console.ReadLine();
+                var input = Console.ReadLine();
 
-                if (string.IsNullOrWhiteSpace(text))
+                if (string.IsNullOrWhiteSpace(input))
                     continue;
 
-                lexer = new Lexer(text);
-                parser = new Parser(lexer);
-                program = parser.ParseProgram();
-                
+                var lexer = new Lexer(input);
+                var parser = new Parser(lexer);
+                var program = parser.ParseProgram();
+
                 if (parser.Errors.Length > 0)
                 {
                     Console.WriteLine(string.Join("\r\n", parser.Errors));
                     continue;
                 }
 
-                evaluator = new Evaluator();
-                evaluated = evaluator.Eval(program, environment);
+                var evaluator = new Evaluator();
+                var evaluated = evaluator.Eval(program, m_environment);
 
                 if (evaluated != null)
                     Console.WriteLine(evaluated);
