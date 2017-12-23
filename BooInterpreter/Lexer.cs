@@ -109,6 +109,9 @@ namespace BooInterpreter
                 case (char)0:
                     token = new Token(TokenType.EOF, "");
                     break;
+                case ':':
+                    token = new Token(TokenType.COLON, m_ch);
+                    break;
 
                 default:
                     if (IsLetter(m_ch))

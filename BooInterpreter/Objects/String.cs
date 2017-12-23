@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class String : Object
+    public class String : Object, IEquatable<String>
     {
         public String()
         {
@@ -21,5 +21,14 @@ namespace BooInterpreter.Objects
         {
             return Value;
         }
+
+        #region IEquatable<String> Members
+
+        public bool Equals(String other)
+        {
+            return string.Equals(Value, other.Value);
+        }
+
+        #endregion
     }
 }

@@ -17,6 +17,7 @@ namespace BooInterpreter
         String,
         Builtin,
         Array,
+        Hash,
     }
 
     public enum Precedence
@@ -55,6 +56,7 @@ namespace BooInterpreter
         // Delimiters
         COMMA,
         SEMICOLON,
+        COLON,
 
         LPAREN,
         RPAREN,

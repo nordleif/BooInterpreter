@@ -240,6 +240,9 @@ namespace BooInterpreter
                 return EvalIndexExpression(left, index);
             }
 
+            else if (node is HashLiteral hashLiteral)
+                return EvalHashLiteral(hashLiteral, environment);
+
             return m_null;
         }
 
@@ -397,9 +400,12 @@ namespace BooInterpreter
 
         private Object EvalIndexExpression(Object left, Object index)
         {
-            if (left is Array && index is Integer)
-                return EvalArrayIndexExpression((Array)left, (Integer)index);
-            
+            if (left is Array array && index is Integer integer)
+                return EvalArrayIndexExpression(array, integer);
+
+            else if (left is Hash hash)
+                return EvalHashIndexExpression(hash, index);
+
             return new Error { Message = $"index operator not supported: {left.Type}" };
         }
 
@@ -409,6 +415,37 @@ namespace BooInterpreter
                 return m_null;
             else
                 return array.Elements[index.Value];
+        }
+
+        private Object EvalHashIndexExpression(Hash hash, Object index)
+        {
+            if (!(index is String || index is Integer || index is Boolean))
+                return new Error { Message = $"unusable as hash key: {index.Type}" };
+
+            if (hash.Pairs.TryGetValue(index, out var value))
+                return value;
+
+            return m_null;
+        }
+
+        private Object EvalHashLiteral(HashLiteral hashLiteral, Environment environment)
+        {
+            var pairs = new Dictionary<Object, Object>(ObjectComparer.Default);
+
+            foreach(var pair in hashLiteral.Pairs)
+            {
+                var key = Eval(pair.Key, environment);
+                if (key is Error)
+                    return key;
+
+                var value = Eval(pair.Value, environment);
+                if (value is Error)
+                    return value;
+
+                pairs.Add(key, value);
+            }
+
+            return new Hash { Pairs = pairs };
         }
 
         private Object NativeBoolToBooleanObject(bool input)

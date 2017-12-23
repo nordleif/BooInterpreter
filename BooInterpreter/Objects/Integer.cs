@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class Integer : Object
+    public class Integer : Object, IEquatable<Integer>
     {
         public Integer()
         {
@@ -21,5 +21,14 @@ namespace BooInterpreter.Objects
         {
             return $"{Value}";
         }
+
+        #region IEquatable<Integer> Members
+
+        public bool Equals(Integer other)
+        {
+            return Value == other.Value;
+        }
+
+        #endregion
     }
 }

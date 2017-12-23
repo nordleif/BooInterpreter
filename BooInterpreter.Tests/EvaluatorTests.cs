@@ -201,10 +201,10 @@ namespace BooInterpreter
                         "\"Hello\" - \"World\"",
                         "unknown operator: String - String"
                     },
-                    //{
-                    //    "{\"name\": \"Monkey\"}[fn(x) { x }];",
-                    //    "unusable as hash key: FUNCTION"
-                    //}
+                    {
+                        "{\"name\": \"Monkey\"}[fn(x) { x }];",
+                        "unusable as hash key: Function"
+                    }
             };
 
             foreach (var test in tests)
@@ -370,6 +370,65 @@ namespace BooInterpreter
                 { "let myArray = [1, 2, 3]; let i = myArray[0]; myArray[i]", 2 },
                 { "[1, 2, 3][3]", null },
                 { "[1, 2, 3][-1]", null }
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+                if (test.Value.HasValue)
+                    TestIntegerObject(evaluated, test.Value.Value);
+                else
+                    TestNullObject(evaluated);
+            }
+        }
+
+        [Test]
+        public void Evaluator_HashLiterals()
+        {
+            var tests = new Dictionary<Object, long>
+            {
+                {new String { Value = "one"}, 1L},
+                {new String { Value = "two"}, 2L},
+                {new String { Value = "three"}, 3L},
+                {new Integer { Value = 4}, 4L},
+                {new Boolean { Value = true}, 5L},
+                {new Boolean { Value = false}, 6L}
+            };
+
+            var input = @"let two = ""two"";
+                          {
+                              ""one"": 10 - 9,
+                              two: 1 + 1,
+                              ""thr"" + ""ee"": 6 / 2,
+                              4: 4,
+                              true: 5,
+                              false: 6
+                          }";
+
+            var evaluated = TestEval(input);
+            var hash = evaluated as Hash;
+
+            Assert.IsNotNull(hash);
+            Assert.AreEqual(tests.Count, hash.Pairs.Count);
+
+            foreach (var test in tests)
+            {
+                Assert.IsTrue(hash.Pairs.ContainsKey(test.Key));
+                var value = hash.Pairs[test.Key];
+                TestIntegerObject(value, test.Value);
+            }
+        }
+
+        [Test]
+        public void TestHashIndexExpressions()
+        {
+            var tests = new Dictionary<string, long?>
+            {
+                { "{\"foo\": 5}[\"foo\"]", 5L },
+                { "{\"foo\": 5}[\"bar\"]", null },
+                { "let key = \"foo\"; {\"foo\": 5}[key]", 5L },
+                { "{}[\"foo\"]", null }, { "{5: 5}[5]", 5L }, { "{true: 5}[true]", 5L },
+                { "{false: 5}[false]", 5L }
             };
 
             foreach (var test in tests)

@@ -54,6 +54,7 @@
     <Compile Include="Expressions\BooleanLiteral.cs" />
     <Compile Include="Expressions\CallExpression.cs" />
     <Compile Include="Expressions\FunctionLiteral.cs" />
+    <Compile Include="Expressions\HashLiteral.cs" />
     <Compile Include="Expressions\IfExpression.cs" />
     <Compile Include="Expressions\IndexExpression.cs" />
     <Compile Include="Expressions\InfixExpression.cs" />
@@ -66,9 +67,11 @@
     <Compile Include="Objects\Builtin.cs" />
     <Compile Include="Objects\Error.cs" />
     <Compile Include="Objects\Function.cs" />
+    <Compile Include="Objects\Hash.cs" />
     <Compile Include="Objects\Integer.cs" />
     <Compile Include="Objects\Null.cs" />
     <Compile Include="Objects\Object.cs" />
+    <Compile Include="Objects\ObjectComparer.cs" />
     <Compile Include="Objects\ReturnValue.cs" />
     <Compile Include="Objects\String.cs" />
     <Compile Include="Statements\BlockStatement.cs" />

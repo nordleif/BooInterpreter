@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BooInterpreter.Objects
 {
-    public class Boolean : Object
+    public class Boolean : Object, IEquatable<Boolean>
     {
         public Boolean()
         {
@@ -21,5 +21,14 @@ namespace BooInterpreter.Objects
         {
             return $"{Value}".ToLower();
         }
+
+        #region IEquatable<Boolean> Members
+
+        public bool Equals(Boolean other)
+        {
+            return Value == other.Value;
+        }
+
+        #endregion
     }
 }

@@ -34,7 +34,8 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.FUNCTION, ParseFunctionLiteral);
             m_prefixParse.Add(TokenType.STRING, ParseStringLiteral);
             m_prefixParse.Add(TokenType.LBRACKET, ParseArrayLiteral);
-            
+            m_prefixParse.Add(TokenType.LBRACE, ParseHashLiteral);
+
             m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
             m_infixParse.Add(TokenType.MINUS, ParseInfixExpression);
@@ -395,6 +396,36 @@ namespace BooInterpreter
                 return null;
 
             return expression;
+        }
+
+        private HashLiteral ParseHashLiteral()
+        {
+            var literal = new HashLiteral { Token = CurrentToken };
+            literal.Pairs = new Dictionary<Expression, Expression>();
+
+            while(!PeekTokenIs(TokenType.RBRACE))
+            {
+                NextToken();
+
+                var key = ParseExpression(Precedence.Lowest);
+
+                if (!ExpectPeek(TokenType.COLON))
+                    return null;
+
+                NextToken();
+
+                var value = ParseExpression(Precedence.Lowest);
+
+                literal.Pairs[key] = value;
+
+                if (!PeekTokenIs(TokenType.RBRACE) && !ExpectPeek(TokenType.COMMA))
+                    return null;
+            }
+            
+            if (!ExpectPeek(TokenType.RBRACE))
+                return null;
+            
+            return literal;
         }
 
         private Precedence CurrentPrecedence()

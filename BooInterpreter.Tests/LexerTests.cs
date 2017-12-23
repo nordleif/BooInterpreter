@@ -38,6 +38,7 @@ namespace BooInterpreter
 
                           [1, 2];
 
+                          { ""foo"": ""bar"" }
                           "; 
         
             var tests = new(TokenType expectedType, string expectedLiteral)[] { 
@@ -133,8 +134,13 @@ namespace BooInterpreter
                 (expectedType: TokenType.RBRACKET, expectedLiteral: "]"),
                 (expectedType: TokenType.SEMICOLON, expectedLiteral: ";"),
 
+                (expectedType: TokenType.LBRACE, expectedLiteral: "{"),
+                (expectedType: TokenType.STRING, expectedLiteral: "foo"),
+                (expectedType: TokenType.COLON, expectedLiteral: ":"),
+                (expectedType: TokenType.STRING, expectedLiteral: "bar"),
+                (expectedType: TokenType.RBRACE, expectedLiteral: "}"),
+                
                 (expectedType: TokenType.EOF, expectedLiteral: ""),
-
             };
 
             var lexer = new Lexer(input);

@@ -452,6 +452,141 @@ namespace BooInterpreter
             TestInfixExpression(indexExpression.Index, 1L, "+", 1L);
         }
 
+        [Test]
+        public void Parser_HashLiteralsStringKeys()
+        {
+            var input = "{\"one\": 1, \"two\": 2, \"three\": 3}";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            var hash = statement.Expression as HashLiteral;
+            Assert.IsNotNull(hash);
+
+            var expected = new Dictionary<string, Int64>
+            {
+                { "one", 1L },
+                { "two", 2L },
+                { "three", 3L }
+            };
+
+            foreach (var pair in hash.Pairs)
+            {
+                var literal = pair.Key as StringLiteral;
+                Assert.IsNotNull(literal);
+
+                var expectedValue = expected[literal.Value];
+                TestIntegerLiteral(pair.Value, expectedValue);
+            }
+        }
+
+        [Test]
+        public void Parser_HashLiteralsIntegerKeys()
+        {
+            var input = "{1: 1, 2: 2, 3: 3}";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            var hash = statement.Expression as HashLiteral;
+            Assert.IsNotNull(hash);
+
+            var expected = new Dictionary<Int64, Int64>
+            {
+                { 1L, 1L },
+                { 2L, 2L },
+                { 3L, 3L }
+            };
+
+            foreach (var pair in hash.Pairs)
+            {
+                var literal = pair.Key as IntegerLiteral;
+                Assert.IsNotNull(literal);
+
+                var expectedValue = expected[literal.Value];
+                TestIntegerLiteral(pair.Value, expectedValue);
+            }
+        }
+
+        [Test]
+        public void Parser_HashLiteralsBooleanKeys()
+        {
+            var input = "{true: 1, false: 2}";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            var hash = statement.Expression as HashLiteral;
+            Assert.IsNotNull(hash);
+
+            var expected = new Dictionary<bool, long>
+            {
+                { true, 1 },
+                { false, 2 }
+            };
+
+            foreach (var pair in hash.Pairs)
+            {
+                var literal = pair.Key as BooleanLiteral;
+                Assert.IsNotNull(literal);
+
+                var expectedValue = expected[literal.Value];
+                TestIntegerLiteral(pair.Value, expectedValue);
+            }
+        }
+
+        [Test]
+        public void Parser_ParsingEmptyHashLiteral()
+        {
+            var input = "{}";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            var hash = statement.Expression as HashLiteral;
+            Assert.IsNotNull(hash);
+            Assert.AreEqual(0, hash.Pairs.Count);
+        }
+
+        [Test]
+        public void Parser_ParsingHashLiteralsWithExpressions()
+        {
+            var input = "{\"one\": 0 + 1, \"two\": 10 - 8, \"three\": 15 / 5}";
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            var hash = statement.Expression as HashLiteral;
+            Assert.IsNotNull(hash);
+            Assert.AreEqual(3, hash.Pairs.Count);
+
+            var tests = new Dictionary<string, Action<Expression>>
+            {
+                { "one", e => TestInfixExpression(e, 0L, "+", 1L) },
+                { "two", e => TestInfixExpression(e, 10L, "-", 8L) },
+                { "three", e => TestInfixExpression(e, 15L, "/", 5L) },
+            };
+
+            foreach (var pair in hash.Pairs)
+            {
+                var literal = pair.Key as StringLiteral;
+                Assert.IsNotNull(literal);
+                Assert.IsTrue(tests.ContainsKey(literal.Value));
+                var expression = tests[literal.Value];
+                expression(pair.Value);
+            }
+        }
+
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");
