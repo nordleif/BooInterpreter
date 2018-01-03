@@ -51,6 +51,7 @@
     <Compile Include="Evaluator.cs" />
     <Compile Include="Expression.cs" />
     <Compile Include="Expressions\ArrayLiteral.cs" />
+    <Compile Include="Expressions\AssignExpression.cs" />
     <Compile Include="Expressions\BooleanLiteral.cs" />
     <Compile Include="Expressions\CallExpression.cs" />
     <Compile Include="Expressions\FunctionLiteral.cs" />

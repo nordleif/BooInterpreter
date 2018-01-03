@@ -460,6 +460,31 @@ namespace BooInterpreter
             }
         }
 
+        [Test]
+        public void Evaluator_AssignExpression()
+        {
+            var tests = new Dictionary<string, object>
+            {
+                {"let s = 0; s = 1;", 1L},
+                {"s = 1;", "identifier not found: s"},
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+                if (test.Value is Int64 expected)
+                {
+                    TestIntegerObject(evaluated, expected);
+                }
+                if (test.Value is string)
+                {
+                    var error = evaluated as Error;
+                    Assert.IsNotNull(error);
+                    Assert.AreEqual(test.Value, error.Message);
+                }
+            }
+        }
+
         private Object TestEval(string input)
         {
             var lexer = new Lexer(input);

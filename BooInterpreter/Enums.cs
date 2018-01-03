@@ -23,6 +23,7 @@ namespace BooInterpreter
     public enum Precedence
     {
         Lowest = 0,
+        Assign,      // =
         Equals,      // ==
         LessGreater, // > or <
         Sum,         // +

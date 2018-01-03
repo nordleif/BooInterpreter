@@ -48,8 +48,10 @@ namespace BooInterpreter
             m_infixParse.Add(TokenType.GT, ParseInfixExpression);
             m_infixParse.Add(TokenType.LPAREN, ParseCallExpression);
             m_infixParse.Add(TokenType.LBRACKET, ParseIndexExpression);
+            m_infixParse.Add(TokenType.ASSIGN, ParseAssignExpression);
 
             m_precedences = new Dictionary<TokenType, Precedence>();
+            m_precedences.Add(TokenType.ASSIGN, Precedence.Assign);
             m_precedences.Add(TokenType.EQ, Precedence.Equals);
             m_precedences.Add(TokenType.NOT_EQ, Precedence.Equals);
             m_precedences.Add(TokenType.LT, Precedence.LessGreater);
@@ -218,6 +220,25 @@ namespace BooInterpreter
             NextToken();
 
             expression.Right = ParseExpression(precedence);
+
+            return expression;
+        }
+
+        private AssignExpression ParseAssignExpression(Expression left)
+        {
+            var expression = new AssignExpression { Token = CurrentToken };
+
+            var identifier = left as Identifier;
+            if (identifier == null)
+                return null;
+
+            expression.Name = identifier;
+            
+            var precedence = CurrentPrecedence();
+
+            NextToken();
+
+            expression.Value = ParseExpression(precedence);
 
             return expression;
         }

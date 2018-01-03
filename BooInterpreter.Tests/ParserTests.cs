@@ -611,7 +611,28 @@ namespace BooInterpreter
             Assert.IsNotNull(consequence);
             TestIdentifier(consequence.Expression, "x");
         }
-        
+
+        [Test]
+        public void Parser_AssignExpression()
+        {
+            var input = "i = 0;";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+
+            var expression = statement.Expression as AssignExpression;
+            Assert.IsNotNull(expression);
+
+            TestIdentifier(expression.Name, "i");
+            TestLiteralExpression(expression.Value, 0L);
+        }
+
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");

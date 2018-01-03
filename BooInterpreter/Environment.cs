@@ -26,6 +26,17 @@ namespace BooInterpreter
             m_outer = outer;
         }
 
+        public bool Contains(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentNullException(nameof(name));
+
+            if (m_store.ContainsKey(name))
+                return true;
+            else
+                return m_outer?.Contains(name) ?? false;
+        }
+
         public Object Get(string name)
         {
             if (string.IsNullOrWhiteSpace(name))

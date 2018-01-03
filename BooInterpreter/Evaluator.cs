@@ -255,6 +255,9 @@ namespace BooInterpreter
             else if (node is WhileExpression whileExpression)
                 return EvalWhileExpression(whileExpression, environment);
 
+            else if (node is AssignExpression assignExpression)
+                return EvalAssignExpression(assignExpression, environment);
+
             return m_null;
         }
 
@@ -530,6 +533,20 @@ namespace BooInterpreter
                 return builtin;
 
             return new Error { Message = $"identifier not found: {identifier.Value}" };
+        }
+
+        private Object EvalAssignExpression(AssignExpression assignExpression, Environment environment)
+        {
+            if (!environment.Contains(assignExpression.Name.Value))
+                return new Error { Message = $"identifier not found: {assignExpression.Name.Value}" };
+
+            var value = Eval(assignExpression.Value, environment);
+            if (value is Error)
+                return value;
+
+            environment.Set(assignExpression.Name.Value, value);
+
+            return value;
         }
 
         private bool IsTruthy(object obj)
