@@ -15,7 +15,7 @@ namespace BooInterpreter
     public class EvaluatorTests
     {
         [Test]
-        public void Evaluator_EvalIntegerExpressions()
+        public void Evaluator_IntegerExpressions()
         {
             var tests = new Dictionary<string, Int64> {
                 {"5", 5},
@@ -43,7 +43,7 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void Evaluator_EvalBooleanExpressions()
+        public void Evaluator_BooleanExpressions()
         {
             var tests = new Dictionary<string, bool> {
                 {"true", true},
@@ -94,7 +94,7 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void Evaluator_EvalIfElseExpressions()
+        public void Evaluator_IfElseExpressions()
         {
             var tests = new Dictionary<string, Int64?> {
                 {"if (true) { 10 }", 10},
@@ -117,7 +117,7 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void Evaluator_EvalReturnStatements()
+        public void Evaluator_ReturnStatements()
         {
             var tests = new Dictionary<string, Int64> {
                 {"return 10;", 10},
@@ -420,7 +420,7 @@ namespace BooInterpreter
         }
 
         [Test]
-        public void TestHashIndexExpressions()
+        public void Evaluator_HashIndexExpressions()
         {
             var tests = new Dictionary<string, long?>
             {
@@ -429,6 +429,25 @@ namespace BooInterpreter
                 { "let key = \"foo\"; {\"foo\": 5}[key]", 5L },
                 { "{}[\"foo\"]", null }, { "{5: 5}[5]", 5L }, { "{true: 5}[true]", 5L },
                 { "{false: 5}[false]", 5L }
+            };
+
+            foreach (var test in tests)
+            {
+                var evaluated = TestEval(test.Key);
+                if (test.Value.HasValue)
+                    TestIntegerObject(evaluated, test.Value.Value);
+                else
+                    TestNullObject(evaluated);
+            }
+        }
+
+        [Test]
+        public void Evaluator_WhileExpressions()
+        {
+            var tests = new Dictionary<string, Int64?> {
+                {"let i = 0; while (i < 10) { let i = i + 1; i }", 10},
+                {"while (false) { 10 }", null},
+                {"while (1) { 10 }", null},
             };
 
             foreach (var test in tests)

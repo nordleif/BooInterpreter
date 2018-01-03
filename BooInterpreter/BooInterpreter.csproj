@@ -61,6 +61,7 @@
     <Compile Include="Expressions\IntegerLiteral.cs" />
     <Compile Include="Expressions\PrefixExpression.cs" />
     <Compile Include="Expressions\StringLiteral.cs" />
+    <Compile Include="Expressions\WhileExpression.cs" />
     <Compile Include="Node.cs" />
     <Compile Include="Objects\Array.cs" />
     <Compile Include="Objects\Boolean.cs" />

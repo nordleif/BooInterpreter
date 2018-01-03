@@ -29,6 +29,7 @@ namespace BooInterpreter
                 { "if", TokenType.IF },
                 { "else", TokenType.ELSE },
                 { "return", TokenType.RETURN },
+                { "while", TokenType.WHILE },
             };
 
             ReadChar();

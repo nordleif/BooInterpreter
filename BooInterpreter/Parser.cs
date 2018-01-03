@@ -35,6 +35,7 @@ namespace BooInterpreter
             m_prefixParse.Add(TokenType.STRING, ParseStringLiteral);
             m_prefixParse.Add(TokenType.LBRACKET, ParseArrayLiteral);
             m_prefixParse.Add(TokenType.LBRACE, ParseHashLiteral);
+            m_prefixParse.Add(TokenType.WHILE, ParseWhileExpression);
 
             m_infixParse = new Dictionary<TokenType, Func<Expression, Expression>>();
             m_infixParse.Add(TokenType.PLUS, ParseInfixExpression);
@@ -246,6 +247,7 @@ namespace BooInterpreter
                 return null;
 
             NextToken();
+
             expression.Condition = ParseExpression(Precedence.Lowest);
 
             if (!ExpectPeek(TokenType.RPAREN))
@@ -266,6 +268,28 @@ namespace BooInterpreter
                 expression.Alternative = ParseBlockStatement();
             }
 
+            return expression;
+        }
+
+        private WhileExpression ParseWhileExpression()
+        {
+            var expression = new WhileExpression { Token = CurrentToken };
+
+            if (!ExpectPeek(TokenType.LPAREN))
+                return null;
+
+            NextToken();
+
+            expression.Condition = ParseExpression(Precedence.Lowest);
+
+            if (!ExpectPeek(TokenType.RPAREN))
+                return null;
+
+            if (!ExpectPeek(TokenType.LBRACE))
+                return null;
+
+            expression.Statement = ParseBlockStatement();
+            
             return expression;
         }
 

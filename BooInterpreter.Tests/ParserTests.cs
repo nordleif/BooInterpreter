@@ -587,6 +587,31 @@ namespace BooInterpreter
             }
         }
 
+        [Test]
+        public void Parser_WhileExpression()
+        {
+            var input = "while (x < y) { x }";
+
+            var lexer = new Lexer(input);
+            var parser = new Parser(lexer);
+            var program = parser.ParseProgram();
+            CheckParserErrors(parser);
+            Assert.AreEqual(1, program.Statements.Length);
+
+            var statement = program.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(statement);
+
+            var expression = statement.Expression as WhileExpression;
+            Assert.IsNotNull(expression);
+
+            TestInfixExpression(expression.Condition, "x", "<", "y");
+
+            Assert.AreEqual(1, expression.Statement.Statements.Length);
+            var consequence = expression.Statement.Statements[0] as ExpressionStatement;
+            Assert.IsNotNull(consequence);
+            TestIdentifier(consequence.Expression, "x");
+        }
+        
         private void CheckParserErrors(Parser parser)
         {
             Assert.AreEqual(0, parser.Errors.Length, $"Parser has {parser.Errors.Length} errors: {string.Join("\r\n", parser.Errors)}");

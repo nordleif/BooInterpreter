@@ -39,6 +39,9 @@ namespace BooInterpreter
                           [1, 2];
 
                           { ""foo"": ""bar"" }
+
+                          while(true) { };
+
                           "; 
         
             var tests = new(TokenType expectedType, string expectedLiteral)[] { 
@@ -53,7 +56,7 @@ namespace BooInterpreter
                 (expectedType: TokenType.ASSIGN, expectedLiteral: "="),
                 (expectedType: TokenType.INT, expectedLiteral: "10"),
                 (expectedType: TokenType.SEMICOLON, expectedLiteral: ";"),
-
+                
                 (expectedType: TokenType.LET, expectedLiteral: "let"),
                 (expectedType: TokenType.IDENT, expectedLiteral: "add"),
                 (expectedType: TokenType.ASSIGN, expectedLiteral: "="),
@@ -139,7 +142,15 @@ namespace BooInterpreter
                 (expectedType: TokenType.COLON, expectedLiteral: ":"),
                 (expectedType: TokenType.STRING, expectedLiteral: "bar"),
                 (expectedType: TokenType.RBRACE, expectedLiteral: "}"),
-                
+
+                (expectedType: TokenType.WHILE, expectedLiteral: "while"),
+                (expectedType: TokenType.LPAREN, expectedLiteral: "("),
+                (expectedType: TokenType.TRUE, expectedLiteral: "true"),
+                (expectedType: TokenType.RPAREN, expectedLiteral: ")"),
+                (expectedType: TokenType.LBRACE, expectedLiteral: "{"),
+                (expectedType: TokenType.RBRACE, expectedLiteral: "}"),
+                (expectedType: TokenType.SEMICOLON, expectedLiteral: ";"),
+
                 (expectedType: TokenType.EOF, expectedLiteral: ""),
             };
 

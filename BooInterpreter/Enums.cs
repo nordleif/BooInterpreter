@@ -73,8 +73,10 @@ namespace BooInterpreter
         IF,
         ELSE,
         RETURN,
+        WHILE,
 
         EQ,
         NOT_EQ,
+
     }
 }

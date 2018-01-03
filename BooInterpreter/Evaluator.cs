@@ -252,6 +252,9 @@ namespace BooInterpreter
             else if (node is HashLiteral hashLiteral)
                 return EvalHashLiteral(hashLiteral, environment);
 
+            else if (node is WhileExpression whileExpression)
+                return EvalWhileExpression(whileExpression, environment);
+
             return m_null;
         }
 
@@ -455,6 +458,27 @@ namespace BooInterpreter
             }
 
             return new Hash { Pairs = pairs };
+        }
+
+        private Object EvalWhileExpression(WhileExpression whileExpression, Environment environment)
+        {
+            Object result = m_null;
+
+            while (true)
+            {
+                var condition = Eval(whileExpression.Condition, environment);
+                if (condition is Error)
+                    return condition;
+
+                if (condition != m_true)
+                    return result;
+
+                result = Eval(whileExpression.Statement, environment);
+                if (result is ReturnValue)
+                    return result;
+                else if (result is Error)
+                    return result;
+            }
         }
 
         private Object NativeBoolToBooleanObject(bool input)
