@@ -19,7 +19,10 @@ namespace BooInterpreter
 
         public override string ToString()
         {
-            return $"{Function}({string.Join(", ", Arguments?.Select(a => a.ToString()))})";
+            var text = $"{Function}";
+            if (Arguments != null)
+                text += $"({string.Join(", ", Arguments?.Select(a => a.ToString()))})";
+            return text;
         }
     }
 }
